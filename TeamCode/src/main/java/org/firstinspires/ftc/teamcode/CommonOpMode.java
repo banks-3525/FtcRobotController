@@ -28,14 +28,6 @@ public abstract class CommonOpMode extends LinearOpMode {
     int increment = 1;
     boolean incrementUp = false;
     boolean incrementDown = false;
-    boolean grabberbuttonpushed = false;
-    boolean grabberbuttonnotPushed = false;
-    boolean capstonebuttonpushed = false;
-    boolean capstonebuttonnotPushed = false;
-    boolean actuatorbuttonpushed = false;
-    boolean actuatorbuttonnotPushed = false;
-    boolean grabbersUp = true;
-    boolean CapGrabUp = true;
     boolean yPressed = false;
     boolean xPressed = false;
     boolean leftTriggerPulled = false;
@@ -51,30 +43,14 @@ public abstract class CommonOpMode extends LinearOpMode {
     boolean armPress = false;
 
 
-    public DcMotor flm;
-    public DcMotor blm;
-    public DcMotor frm;
-    public DcMotor brm;
-    public DcMotor LEFTSUCTIONMOTOR;
-    public DcMotor RIGHTSUCTIONMOTOR;
-    public DcMotor leftarm;
-    public DcMotor rightarm;
-    public CRServo LF;
-    public CRServo RF;
-    public CRServo RB;
-    public CRServo LB;
-    public CRServo LI;
-    public CRServo RI;
-    public Servo leftFoundationGrabber;
-    public Servo rightFoundationGrabber;
-    public Servo CapGrab;
-    public Servo leftactuator;
-    public Servo rightactuator;
+    public DcMotor frontLeftMotor;
+    public DcMotor backLeftMotor;
+    public DcMotor frontRightMotor;
+    public DcMotor backRightMotor;
+    public DcMotor leftSuctionMotor;
+    public DcMotor rightSuctionMotor;
     static final int CYCLE_MS = 300;
 
-    public TouchSensor leftTouchSensor;
-    public TouchSensor rightTouchSensor;
-    public ColorSensor leftColorSensor;
     public ColorSensor rightColorSensor;
 
     public BNO055IMU imu;
@@ -105,46 +81,38 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     }
 
+    public void initTestHardware2020() {
+        frontLeftMotor = hardwareMap.dcMotor.get("frm");
+        backLeftMotor = hardwareMap.dcMotor.get("blm");
+        frontRightMotor = hardwareMap.dcMotor.get("flm");
+        backRightMotor = hardwareMap.dcMotor.get("brm");
+        frontLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        backLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        imu.initialize(parameters);
+
+        parameters.mode = BNO055IMU.SensorMode.IMU;
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.loggingEnabled = false;
+    }
+
 
     public void initHardware() {
-        flm = hardwareMap.dcMotor.get("frm");
-        blm = hardwareMap.dcMotor.get("blm");
-        frm = hardwareMap.dcMotor.get("flm");
-        brm = hardwareMap.dcMotor.get("brm");
-        LEFTSUCTIONMOTOR = hardwareMap.dcMotor.get("lsm");
-        RIGHTSUCTIONMOTOR = hardwareMap.dcMotor.get("rsm");
-        leftactuator = hardwareMap.servo.get("LA");
-        rightactuator = hardwareMap.servo.get("RA");
-        leftactuator.setPosition(1);
-        rightactuator.setPosition(0);
-        CapGrab = hardwareMap.servo.get("CapGrab");
-        CapGrab.setPosition(1);
-        leftarm = hardwareMap.dcMotor.get("leftarm");
-        rightarm = hardwareMap.dcMotor.get("rightarm");
-        LF = hardwareMap.crservo.get("LF");
-        RF = hardwareMap.crservo.get("RF");
-        LB = hardwareMap.crservo.get("LB");
-        RB = hardwareMap.crservo.get("RB");
-        LI = hardwareMap.crservo.get("LI");
-        RI = hardwareMap.crservo.get("RI");
-        leftFoundationGrabber = hardwareMap.servo.get("LFG");
-        leftFoundationGrabber.setPosition(.4);
-        rightFoundationGrabber = hardwareMap.servo.get("RFG");
-        rightFoundationGrabber.setPosition(.6);
-        leftTouchSensor = hardwareMap.get(TouchSensor.class, "LT");
-        rightTouchSensor = hardwareMap.get(TouchSensor.class, "RT");
-        leftColorSensor = hardwareMap.get(ColorSensor.class, "LeftColorSensor");
+        frontLeftMotor = hardwareMap.dcMotor.get("frm");
+        backLeftMotor = hardwareMap.dcMotor.get("blm");
+        frontRightMotor = hardwareMap.dcMotor.get("flm");
+        backRightMotor = hardwareMap.dcMotor.get("brm");
+        rightSuctionMotor = hardwareMap.dcMotor.get("lsm");
+        rightSuctionMotor = hardwareMap.dcMotor.get("rsm");
         rightColorSensor = hardwareMap.get(ColorSensor.class, "RightColorSensor");
-        flm.setDirection(DcMotorSimple.Direction.FORWARD);
-        blm.setDirection(DcMotorSimple.Direction.REVERSE);
-        frm.setDirection(DcMotorSimple.Direction.REVERSE);
-        brm.setDirection(DcMotorSimple.Direction.FORWARD);
-        leftarm.setDirection(DcMotorSimple.Direction.FORWARD);
-        rightarm.setDirection(DcMotorSimple.Direction.REVERSE);
-        LF.setDirection(DcMotorSimple.Direction.REVERSE);
-        LB.setDirection(DcMotorSimple.Direction.REVERSE);
-        RF.setDirection(DcMotorSimple.Direction.FORWARD);
-        RB.setDirection(DcMotorSimple.Direction.FORWARD);
+        frontLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        backLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
@@ -187,13 +155,8 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     public void backToNormal() {
         if (gamepad1.x) {
-            setupMotorToRunWithoutEncoder(frm);
+            setupMotorToRunWithoutEncoder(frontRightMotor);
         }
-    }
-
-    public void actuators(double pos1, double pos2) {
-        leftactuator.setPosition(pos1);
-        rightactuator.setPosition(pos2);
     }
 
     public void setSpeed() {
@@ -274,52 +237,10 @@ public abstract class CommonOpMode extends LinearOpMode {
         xAxis = gamepad1.left_stick_x;
         turn = gamepad1.right_stick_x;
         //DON'T CHANGE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        blm.setPower((yAxis + xAxis - turn) * (-speedAdjust / 10));
-        flm.setPower((yAxis - xAxis - turn) * (-speedAdjust / 10));
-        brm.setPower((yAxis - xAxis + turn) * (-speedAdjust / 10));
-        frm.setPower((yAxis + xAxis + turn) * (-speedAdjust / 10));
-    }
-
-    //changed the method to account for two foundation grabbers
-    public void foundationGrabberControl() {
-        if (gamepad1.x && grabberbuttonpushed == false) {
-            leftFoundationGrabber.setPosition(.5);
-            rightFoundationGrabber.setPosition(1);
-            grabberbuttonpushed = true;
-        } else {
-            grabberbuttonpushed = false;
-        }
-
-        if (gamepad1.y  && grabberbuttonnotPushed == false) {
-            leftFoundationGrabber.setPosition(1);
-            rightFoundationGrabber.setPosition(.5);
-            grabberbuttonnotPushed = true;
-        } else {
-            grabberbuttonnotPushed = false;
-        }
-
-
-    }
-
-    public void foundationGrabberOnePress(){
-        if (gamepad1.y) {
-            if (!yPressed) {
-                yPressed = true;
-                if (grabbersUp) {
-                    leftFoundationGrabber.setPosition(0);
-                    rightFoundationGrabber.setPosition(1);
-                    sleep(75);
-                    grabbersUp = false;
-                } else {
-                    leftFoundationGrabber.setPosition(.6);
-                    rightFoundationGrabber.setPosition(.4);
-                    sleep(75);
-                    grabbersUp = true;
-                }
-            }
-        } else {
-            yPressed = false;
-        }
+        backLeftMotor.setPower((yAxis + xAxis - turn) * (-speedAdjust / 10));
+        frontLeftMotor.setPower((yAxis - xAxis - turn) * (-speedAdjust / 10));
+        backRightMotor.setPower((yAxis - xAxis + turn) * (-speedAdjust / 10));
+        frontRightMotor.setPower((yAxis + xAxis + turn) * (-speedAdjust / 10));
     }
 
     public void lessThanEqualDistance(double target) {
@@ -331,97 +252,97 @@ public abstract class CommonOpMode extends LinearOpMode {
     }
 
     public void resetDrive() {
-        flm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        blm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        frm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        brm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        flm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        blm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        frm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        brm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
     }
 
     public void resetDriveWithoutEncoder() {
-        flm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        blm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        frm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        brm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        flm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        blm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        frm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        brm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     public void runWithoutEncoders() {
-        flm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        blm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        frm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        brm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     public void stopDriveMotors() {
-        flm.setPower(0);
-        blm.setPower(0);
-        frm.setPower(0);
-        brm.setPower(0);
+        frontLeftMotor.setPower(0);
+        backLeftMotor.setPower(0);
+        frontRightMotor.setPower(0);
+        backRightMotor.setPower(0);
     }
 
     public void setDrivePower(double DrivePower) {
-        flm.setPower(DrivePower);
-        blm.setPower(DrivePower);
-        frm.setPower(DrivePower);
-        brm.setPower(DrivePower);
+        frontLeftMotor.setPower(DrivePower);
+        backLeftMotor.setPower(DrivePower);
+        frontRightMotor.setPower(DrivePower);
+        backRightMotor.setPower(DrivePower);
     }
 
     public void runToPosition() {
-        flm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        blm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        frm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        brm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        frontLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        frontRightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     public void waitForMotorsAndRelayTelm() {
-        while (opModeIsActive() && flm.isBusy() && blm.isBusy() && frm.isBusy() && brm.isBusy()) {
-            telemetry.addData("FL", flm.getCurrentPosition());
-            telemetry.addData("BL", blm.getCurrentPosition());
-            telemetry.addData("FR", frm.getCurrentPosition());
-            telemetry.addData("BR", brm.getCurrentPosition());
+        while (opModeIsActive() && frontLeftMotor.isBusy() && backLeftMotor.isBusy() && frontRightMotor.isBusy() && backRightMotor.isBusy()) {
+            telemetry.addData("FL", frontLeftMotor.getCurrentPosition());
+            telemetry.addData("BL", backLeftMotor.getCurrentPosition());
+            telemetry.addData("FR", frontRightMotor.getCurrentPosition());
+            telemetry.addData("BR", backRightMotor.getCurrentPosition());
             telemetry.update();
             //idle();
         }
     }
 
     public void motorSpeedRelay() {
-        telemetry.addData("FL speed", flm.getPower());
-        telemetry.addData("BL speed", blm.getPower());
-        telemetry.addData("FR speed", frm.getPower());
-        telemetry.addData("BR speed", brm.getPower());
+        telemetry.addData("FL speed", frontLeftMotor.getPower());
+        telemetry.addData("BL speed", backLeftMotor.getPower());
+        telemetry.addData("FR speed", frontRightMotor.getPower());
+        telemetry.addData("BR speed", backRightMotor.getPower());
         telemetry.update();
     }
 
     public void setDriveY(int y) {
         y = (int) ((y * 1120) / 31.4);
-        flm.setTargetPosition(y);
-        blm.setTargetPosition(y);
-        frm.setTargetPosition(y);
-        brm.setTargetPosition(y);
+        frontLeftMotor.setTargetPosition(y);
+        backLeftMotor.setTargetPosition(y);
+        frontRightMotor.setTargetPosition(y);
+        backRightMotor.setTargetPosition(y);
     }
 
     public void setDriveX(int x) {
         x = (int) ((x * 1120) / 31.4);
-        flm.setTargetPosition(x);
-        blm.setTargetPosition(-x);
-        frm.setTargetPosition(-x);
-        brm.setTargetPosition(x);
+        frontLeftMotor.setTargetPosition(x);
+        backLeftMotor.setTargetPosition(-x);
+        frontRightMotor.setTargetPosition(-x);
+        backRightMotor.setTargetPosition(x);
     }
 
     public void setDriveRotate(int r) {
-        flm.setTargetPosition(r);
-        blm.setTargetPosition(r);
-        frm.setTargetPosition(-r);
-        brm.setTargetPosition(-r);
+        frontLeftMotor.setTargetPosition(r);
+        backLeftMotor.setTargetPosition(r);
+        frontRightMotor.setTargetPosition(-r);
+        backRightMotor.setTargetPosition(-r);
     }
 
     public void DriveX(int distance, double speed) {
@@ -442,60 +363,6 @@ public abstract class CommonOpMode extends LinearOpMode {
         resetDrive();
     }
 
-    public void armsResetAndRun() {
-        leftarm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightarm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftarm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightarm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-    }
-
-    public void armsReset() {
-        boolean armszero = leftarm.getCurrentPosition() == 0 && rightarm.getCurrentPosition() == 0;
-
-        if (armszero) {
-            leftarm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            rightarm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        }
-    }
-
-    public void armsRunToPosition() {
-        leftarm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightarm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-    }
-
-
-    public void armsPower(double power) {
-        leftarm.setPower(power);
-        rightarm.setPower(power);
-    }
-
-    public void arms() {
-
-        int maxBlock = 5;
-        int blockHeight = 570;
-        int fudgeFactor = 60  * (increment - 1);
-        currentHeight = (blockHeight * increment) + fudgeFactor;
-        int armTopLimit = (blockHeight * (maxBlock + 1)) + (60 * maxBlock);
-
-        if (currentHeight >= armTopLimit) {
-            telemetry.addData("Danger", "will robinson");
-        } else if (gamepad1.a && !armPress) {
-            leftarm.setTargetPosition(currentHeight);
-            rightarm.setTargetPosition(currentHeight);
-            armsPower(.6);
-            armsRunToPosition();
-            increment++;
-            armPress = true;
-        } else if (gamepad1.b) {
-            leftarm.setTargetPosition(0);
-            rightarm.setTargetPosition(0);
-            armsPower(-.5);
-            armsRunToPosition();
-            armsReset();
-            armPress = false;
-        }
-    }
-
     /*public void driveAutoForward() {
         if(leftTouchSensor.isPressed() || rightTouchSensor.isPressed())
         blm.setPower(.3);
@@ -504,165 +371,20 @@ public abstract class CommonOpMode extends LinearOpMode {
         frm.setPower(.3);
     }*/
 
-    public void suction() {
-        if (gamepad1.left_trigger == 1) {
-            LF.setPower(1);
-            LB.setPower(-1);
-            RF.setPower(1);
-            RB.setPower(-1);
-            LI.setPower(-1);
-            RI.setPower(1);
-            LEFTSUCTIONMOTOR.setPower(-1);
-            RIGHTSUCTIONMOTOR.setPower(1);
-            //driveAutoForward();
-        } else if (gamepad1.right_trigger == 1) {
-            LF.setPower(-1);
-            LB.setPower(1);
-            RF.setPower(-1);
-            RB.setPower(1);
-            LI.setPower(1);
-            RI.setPower(-1);
-            LEFTSUCTIONMOTOR.setPower(1);
-            RIGHTSUCTIONMOTOR.setPower(-1);
-            //driveAuto(1,0,0,
-        } else {
-            LF.setPower(0);
-            LB.setPower(0);
-            RF.setPower(0);
-            RB.setPower(0);
-            LI.setPower(0);
-            RI.setPower(0);
-            LEFTSUCTIONMOTOR.setPower(0);
-            RIGHTSUCTIONMOTOR.setPower(0);
-
-        }
-    }
-
-    /*public void suction() {
-        if (gamepad1.left_trigger == 1) {
-            if (!leftTriggerPulled) {
-                leftTriggerPulled = true;
-                LF.setPower(1);
-                LB.setPower(-1);
-                RF.setPower(1);
-                RB.setPower(-1);
-                LI.setPower(-1);
-                RI.setPower(1);
-                LEFTSUCTIONMOTOR.setPower(-1);
-                RIGHTSUCTIONMOTOR.setPower(1);
-                sleep(4000);
-                LF.setPower(0);
-                LB.setPower(0);
-                RF.setPower(0);
-                RB.setPower(0);
-                LI.setPower(0);
-                RI.setPower(0);
-                LEFTSUCTIONMOTOR.setPower(0);
-                RIGHTSUCTIONMOTOR.setPower(0);
-            }
-        } else if ((gamepad1.left_trigger == 0) && leftTriggerPulled){
-            leftTriggerPulled = false;
-            LI.setPower(-1);
-            RI.setPower(1);
-            sleep(2000);
-            LI.setPower(0);
-            RI.setPower(0);
-        }
-    }*/
-
-    public void pushOut() {
-        if (gamepad1.left_trigger == 1) {
-            LI.setPower(-0.75);
-            RI.setPower(0.75);
-        } else {
-            LI.setPower(0);
-            RI.setPower(0);
-        }
-    }
-
-    public void pushOutBackwards() {
-        LI.setPower(-0.75);
-        RI.setPower(0.75);
-        //sleep(500);
-        sleep(800);
-        driveAuto(-1, 0, 0, .3, -15);
-        runWithoutEncoders();
-    }
-
-    public void autoPushOut() {
-        LF.setPower(1);
-        LB.setPower(-1);
-        RF.setPower(1);
-        RB.setPower(-1);
-        LI.setPower(0.75);
-        RI.setPower(-0.75);
-        sleep(500);
-    }
-
-    public void autoSuckIn() {
-        LEFTSUCTIONMOTOR.setPower(-1);
-        RIGHTSUCTIONMOTOR.setPower(1);
-        LF.setPower(1);
-        LB.setPower(-1);
-        RF.setPower(1);
-        RB.setPower(-1);
-        LI.setPower(-1);
-        RI.setPower(1);
-        //sleep(50);
-    }
-
     public void blockStrafeLeft() {
-        flm.setPower(.2);
-        blm.setPower(-.4);
-        frm.setPower(-.4);
-        brm.setPower(.2);
+        frontLeftMotor.setPower(.2);
+        backLeftMotor.setPower(-.4);
+        frontRightMotor.setPower(-.4);
+        backRightMotor.setPower(.2);
     }
 
     public void blockStrafeRight() {
-        flm.setPower(-.6);
-        blm.setPower(.3);
-        frm.setPower(.3);
-        brm.setPower(-.6);
+        frontLeftMotor.setPower(-.6);
+        backLeftMotor.setPower(.3);
+        frontRightMotor.setPower(.3);
+        backRightMotor.setPower(-.6);
     }
 
-    public void lineUpBlock() {
-        if (gamepad1.dpad_up && (leftTouchSensor.isPressed() || rightTouchSensor.isPressed())) {
-            setDrivePower(-.4);
-            /*while (gamepad2.left_bumper && opModeIsActive()) {
-                if (leftTouchSensor.isPressed() && rightTouchSensor.isPressed()) {
-                    blockStrafeRight();
-                    sleep(100);
-                } else {
-                    blm.setPower(0);
-                    flm.setPower(0);
-                    brm.setPower(0);
-                    frm.setPower(0);
-                    //strafeRightAuto();
-                    sleep(CYCLE_MS);
-                    pushOutBackwards();
-                    break;
-                }
-            }*/
-
-            while (gamepad1.right_bumper && opModeIsActive()) {
-                if (leftTouchSensor.isPressed() && rightTouchSensor.isPressed()) {
-                    blockStrafeLeft();
-                    sleep(100);
-                } else {
-                    blm.setPower(0);
-                    flm.setPower(0);
-                    brm.setPower(0);
-                    frm.setPower(0);
-                    //strafeLeftAuto();
-                    sleep(CYCLE_MS);
-                    //driveAuto(1,0,0,1,2);
-                    pushOutBackwards();
-                    break;
-                }
-            }
-        }
-        stopDriveMotors();
-    }
 
     public void strafeLeftAuto() {
         driveAuto(0, 1, 0, .5, 7);
@@ -674,9 +396,9 @@ public abstract class CommonOpMode extends LinearOpMode {
 
 
     public boolean distanceDone(double target) {
-        return (abs(flm.getCurrentPosition()) <= abs(target)) && (abs(blm.getCurrentPosition()) <= abs(target))
-                && (abs(frm.getCurrentPosition()) <= abs(target))
-                && (abs(brm.getCurrentPosition()) <= abs(target));
+        return (abs(frontLeftMotor.getCurrentPosition()) <= abs(target)) && (abs(backLeftMotor.getCurrentPosition()) <= abs(target))
+                && (abs(frontRightMotor.getCurrentPosition()) <= abs(target))
+                && (abs(backRightMotor.getCurrentPosition()) <= abs(target));
 
     }
 
@@ -687,61 +409,52 @@ public abstract class CommonOpMode extends LinearOpMode {
             //telemetry.addData("range", String.format("%.01f cm", sensorRange.getDistance(DistanceUnit.CM)));
             telemetry.addData("distance met", "%s", distanceDone(target));
             telemetry.update();
-            flm.setPower(-1);
-            blm.setPower(-1);
-            brm.setPower(-1);
-            frm.setPower(-1);
+            frontLeftMotor.setPower(-1);
+            backLeftMotor.setPower(-1);
+            backRightMotor.setPower(-1);
+            frontRightMotor.setPower(-1);
         }
         stopDriveMotors();
     }
 
-    public void leftActuatorTest() {
-        if (gamepad1.a) {
-            leftactuator.setPosition(0.65);
-            telemetry.addData("Active?", "Yes");
-        } else {
-            telemetry.addData("Active?", "No");
-        }
-        telemetry.update();
-    }
 
     public void driveMotorTest() {
         if (gamepad1.dpad_up) {
-            flm.setPower(1);
+            frontLeftMotor.setPower(1);
         } else if (gamepad1.dpad_down) {
-            frm.setPower(1);
+            frontRightMotor.setPower(1);
         } else if (gamepad1.dpad_left) {
-            blm.setPower(1);
+            backLeftMotor.setPower(1);
         } else if (gamepad1.dpad_right) {
-            brm.setPower(1);
+            backRightMotor.setPower(1);
         } else {
-            flm.setPower(0);
-            blm.setPower(0);
-            frm.setPower(0);
-            brm.setPower(0);
+            frontLeftMotor.setPower(0);
+            backLeftMotor.setPower(0);
+            frontRightMotor.setPower(0);
+            backRightMotor.setPower(0);
         }
     }
 
     public void autoDriveBackwardsIndefinitely() {
         resetDriveWithoutEncoder();
         correction = pidDrive.performPID(getAngle());
-        blm.setPower(-(pidPower + (correction / 2)));
-        flm.setPower(-(pidPower + (correction / 2)));
-        brm.setPower(-(pidPower - (correction / 2)));
-        frm.setPower(-(pidPower - (correction / 2)));
+        backLeftMotor.setPower(-(pidPower + (correction / 2)));
+        frontLeftMotor.setPower(-(pidPower + (correction / 2)));
+        backRightMotor.setPower(-(pidPower - (correction / 2)));
+        frontRightMotor.setPower(-(pidPower - (correction / 2)));
     }
 
     public void autoDriveForwardsIndefinitelySlowly() {
-        flm.setPower(.15);
-        blm.setPower(.15);
-        frm.setPower(.15);
-        brm.setPower(.15);
+        frontLeftMotor.setPower(.15);
+        backLeftMotor.setPower(.15);
+        frontRightMotor.setPower(.15);
+        backRightMotor.setPower(.15);
     }
 
-    public boolean checkSkystone() {
+   /* public boolean checkSkystone() {
         //100 is the deciding constant that determines either stone or Skystone
         return abs(leftColorSensor.red() - rightColorSensor.red()) > 100;
-    }
+    }*/
 
     public void initPID() {
         // Set PID proportional value to start reducing power at about 50 degrees of rotation.
@@ -863,11 +576,11 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     public void rightTurn(double power, double radian) {
         resetDrive();
-        while(abs(flm.getCurrentPosition()) <= abs(radian) && opModeIsActive()) {
-            blm.setPower(-power);
-            flm.setPower(-power);
-            brm.setPower(power);
-            frm.setPower(power);
+        while (abs(frontLeftMotor.getCurrentPosition()) <= abs(radian) && opModeIsActive()) {
+            backLeftMotor.setPower(-power);
+            frontLeftMotor.setPower(-power);
+            backRightMotor.setPower(power);
+            frontRightMotor.setPower(power);
         }
         stopDriveMotors();
     }
@@ -875,11 +588,11 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     public void leftTurn(double power, double radian) {
         resetDrive();
-        while(abs(flm.getCurrentPosition()) <= abs(radian) && opModeIsActive() ) {
-            blm.setPower(power);
-            flm.setPower(power);
-            brm.setPower(-power);
-            frm.setPower(-power);
+        while (abs(frontLeftMotor.getCurrentPosition()) <= abs(radian) && opModeIsActive()) {
+            backLeftMotor.setPower(power);
+            frontLeftMotor.setPower(power);
+            backRightMotor.setPower(-power);
+            frontRightMotor.setPower(-power);
         }
         stopDriveMotors();
     }
@@ -889,13 +602,13 @@ public abstract class CommonOpMode extends LinearOpMode {
 
         resetDriveWithoutEncoder();
 
-        while (abs(flm.getCurrentPosition()) <= abs(distance_encoder) && opModeIsActive()) {
+        while (abs(frontLeftMotor.getCurrentPosition()) <= abs(distance_encoder) && opModeIsActive()) {
             correction = pidDrive.performPID(getAngle());
             telemetryPID();
-            blm.setPower((pidPower - (correction / 2)));
-            flm.setPower((pidPower - (correction / 2)));
-            brm.setPower((pidPower - (correction / 2)));
-            frm.setPower((pidPower - (correction / 2)));
+            backLeftMotor.setPower((pidPower - (correction / 2)));
+            frontLeftMotor.setPower((pidPower - (correction / 2)));
+            backRightMotor.setPower((pidPower - (correction / 2)));
+            frontRightMotor.setPower((pidPower - (correction / 2)));
         }
         stopDriveMotors();
     }
@@ -905,13 +618,13 @@ public abstract class CommonOpMode extends LinearOpMode {
 
         resetDriveWithoutEncoder();
 
-        while (abs(flm.getCurrentPosition()) <= abs(distance_encoder) && opModeIsActive()) {
+        while (abs(frontLeftMotor.getCurrentPosition()) <= abs(distance_encoder) && opModeIsActive()) {
             correction = pidDrive.performPID(getAngle());
             telemetryPID();
-            blm.setPower(-(pidPower + (correction / 2)));
-            flm.setPower(-(pidPower + (correction / 2)));
-            brm.setPower(-(pidPower - (correction / 2)));
-            frm.setPower(-(pidPower - (correction / 2)));
+            backLeftMotor.setPower(-(pidPower + (correction / 2)));
+            frontLeftMotor.setPower(-(pidPower + (correction / 2)));
+            backRightMotor.setPower(-(pidPower - (correction / 2)));
+            frontRightMotor.setPower(-(pidPower - (correction / 2)));
         }
         stopDriveMotors();
     }
@@ -921,13 +634,13 @@ public abstract class CommonOpMode extends LinearOpMode {
 
         resetDriveWithoutEncoder();
 
-        while (abs(flm.getCurrentPosition()) <= abs(distance_encoder) && opModeIsActive()) {
+        while (abs(frontLeftMotor.getCurrentPosition()) <= abs(distance_encoder) && opModeIsActive()) {
             correction = pidDrive.performPID(getAngle());
             telemetryPID();
-            blm.setPower(pidPower - (correction / 2));
-            flm.setPower(-pidPower - (correction / 2));
-            brm.setPower(-pidPower + (correction / 2));
-            frm.setPower(pidPower + (correction / 2));
+            backLeftMotor.setPower(pidPower - (correction / 2));
+            frontLeftMotor.setPower(-pidPower - (correction / 2));
+            backRightMotor.setPower(-pidPower + (correction / 2));
+            frontRightMotor.setPower(pidPower + (correction / 2));
         }
         stopDriveMotors();
     }
@@ -937,13 +650,13 @@ public abstract class CommonOpMode extends LinearOpMode {
 
         resetDriveWithoutEncoder();
 
-        while (abs(flm.getCurrentPosition()) <= abs(distance_encoder) && opModeIsActive()) {
+        while (abs(frontLeftMotor.getCurrentPosition()) <= abs(distance_encoder) && opModeIsActive()) {
             correction = pidDrive.performPID(getAngle());
             telemetryPID();
-            blm.setPower(-pidPower - (correction / 2));
-            flm.setPower(pidPower - (correction / 2));
-            brm.setPower(pidPower + (correction / 2));
-            frm.setPower(-pidPower + (correction / 2));
+            backLeftMotor.setPower(-pidPower - (correction / 2));
+            frontLeftMotor.setPower(pidPower - (correction / 2));
+            backRightMotor.setPower(pidPower + (correction / 2));
+            frontRightMotor.setPower(-pidPower + (correction / 2));
         }
         stopDriveMotors();
     }
@@ -962,11 +675,11 @@ public abstract class CommonOpMode extends LinearOpMode {
         //telemetry.addData("3 correction", correction);
         //telemetry.addData("4 turn rotation", rotation);
         telemetry.addData("5 PID power", pidPower);
-        telemetry.addData("fl motor encoder", abs(flm.getCurrentPosition()));
-        telemetry.addData("bl motor encoder", abs(blm.getCurrentPosition()));
-        telemetry.addData("fr motor encoder", abs(frm.getCurrentPosition()));
-        telemetry.addData("br motor encoder", abs(brm.getCurrentPosition()));
-        telemetry.addData("frp", frm.getPower());
+        telemetry.addData("fl motor encoder", abs(frontLeftMotor.getCurrentPosition()));
+        telemetry.addData("bl motor encoder", abs(backLeftMotor.getCurrentPosition()));
+        telemetry.addData("fr motor encoder", abs(frontRightMotor.getCurrentPosition()));
+        telemetry.addData("br motor encoder", abs(backRightMotor.getCurrentPosition()));
+        telemetry.addData("frp", frontRightMotor.getPower());
         telemetry.update();
     }
 
@@ -975,156 +688,29 @@ public abstract class CommonOpMode extends LinearOpMode {
 
         resetDrive();
 
-        blm.setPower((straight + strafe - turn) * (-speed));
-        flm.setPower((straight - strafe - turn) * (-speed));
-        brm.setPower((straight - strafe + turn) * (-speed));
-        frm.setPower((straight + strafe + turn) * (-speed));
+        backLeftMotor.setPower((straight + strafe - turn) * (-speed));
+        frontLeftMotor.setPower((straight - strafe - turn) * (-speed));
+        backRightMotor.setPower((straight - strafe + turn) * (-speed));
+        frontRightMotor.setPower((straight + strafe + turn) * (-speed));
         lessThanEqualDistance(distance_encoder);
         motorSpeedRelay();
         stopDriveMotors();
     }
 
-    public void actuatorControl() {
-        if (gamepad1.x && actuatorbuttonpushed == false) {
-            leftactuator.setPosition(0.65);
-            rightactuator.setPosition(-0.65);
-            actuatorbuttonpushed = true;
-        } else {
-            actuatorbuttonpushed = false;
-        }
 
-        if (gamepad1.y && actuatorbuttonnotPushed == false) {
-            leftactuator.setPosition(0);
-            rightactuator.setPosition(0);
-            actuatorbuttonnotPushed = true;
-        } else {
-            actuatorbuttonnotPushed = false;
-        }
-
-
-    }
-
-    public void autoScoreSkystone() {
-        if (checkSkystone()) {
-            stopDriveMotors();
-            pidPower = .4;
-            strafeRight(75);
-            //driveBackwardsToFoundation();
-            LB.setPower(-1);
-            RB.setPower(-1);
-            LI.setPower(-1);
-            RI.setPower(1);
-            sleep(3000);
-            /*LEFTSUCTIONMOTOR.setPower(0);
-            RIGHTSUCTIONMOTOR.setPower(0);
-            LF.setPower(0);
-            LB.setPower(-1);
-            RF.setPower(0);
-            RB.setPower(-1);
-            LI.setPower(-1);
-            RI.setPower(1);
-            sleep(2000);
-            strafeRight(75);
-            driveBackwardsToFoundation();
-            autoPushOut();
-            strafeRight(25);
-            driveStraightForward(50);*/
-        }
-    }
-
-    public void driveBackwardsSlowlyToFoundation() {
-        pidPower = .2;
-        while (!leftTouchSensor.isPressed() || !rightTouchSensor.isPressed()) {
-            autoDriveBackwardsIndefinitely();
-        }
-    }
-
-    public void blueAutoDriveForwardAndStoneCheck() {
-        autoSuckIn();
-        pidPower = .2;
-        //driveForwardForSkystoneCollection(10);
-        //driveForwardIndefinitlyWithPID();
-        //autoDriveForwardsIndefinitelySlowly();
-
-        while (!checkSkystone()) {
-            //driveStraightForward(30);
-            setDrivePower(.2);
-            sleep(400);
-            stopDriveMotors();
-            sleep(650);
-        }
-    }
-
-    public void redAutoDriveForwardAndStoneCheck() {
-        autoSuckIn();
-        //driveForwardForSkystoneCollection(10);
-        //driveForwardIndefinitlyWithPID();
-        //autoDriveForwardsIndefinitelySlowly();
-
-        while (!checkSkystone()) {
-            //driveStraightForward(30);
-            setDrivePower(.2);
-            sleep(400);
-            stopDriveMotors();
-            sleep(650);
-        }
-    }
-
-    public void  waitForGamePadA() {
-        while(!gamepad1.a) {
+    public void waitForGamePadA() {
+        while (!gamepad1.a) {
             sleep(20);
         }
-    }
-
-    public void capstoneGrabber() {
-        if (gamepad1.x) {
-            if (!xPressed) {
-                xPressed = true;
-                if (CapGrabUp) {
-                    CapGrab.setPosition(0.5);
-                    sleep(75);
-                    CapGrabUp = false;
-                } else {
-                    CapGrab.setPosition(1);
-                    sleep(75);
-                    CapGrabUp = true;
-                }
-            }
-        } else {
-            xPressed = false;
-        }
-
-        }
-
-    public void stoneDisposal() {
-        LEFTSUCTIONMOTOR.setPower(0);
-        RIGHTSUCTIONMOTOR.setPower(0);
-        LF.setPower(-1);
-        LB.setPower(0);
-        RF.setPower(-1);
-        RB.setPower(0);
-        LI.setPower(-1);
-        RI.setPower(1);
-    }
-
-    public void stopStoneDisposal() {
-        LEFTSUCTIONMOTOR.setPower(0);
-        RIGHTSUCTIONMOTOR.setPower(0);
-        LF.setPower(0);
-        LB.setPower(0);
-        RF.setPower(0);
-        RB.setPower(0);
-        LI.setPower(0);
-        RI.setPower(0);
     }
 
     public void driveForwardIndefinitlyWithPID() {
         resetDriveWithoutEncoder();
         correction = pidDrive.performPID(getAngle());
-        blm.setPower((pidPower - (correction / 2)));
-        flm.setPower((pidPower - (correction / 2)));
-        brm.setPower((pidPower - (correction / 2)));
-        frm.setPower((pidPower - (correction / 2)));
+        backLeftMotor.setPower((pidPower - (correction / 2)));
+        frontLeftMotor.setPower((pidPower - (correction / 2)));
+        backRightMotor.setPower((pidPower - (correction / 2)));
+        frontRightMotor.setPower((pidPower - (correction / 2)));
     }
 
-    }
+}
