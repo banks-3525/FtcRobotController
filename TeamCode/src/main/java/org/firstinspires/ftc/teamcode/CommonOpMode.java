@@ -114,7 +114,6 @@ public abstract class CommonOpMode extends LinearOpMode {
         frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
-
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
 
@@ -606,9 +605,9 @@ public abstract class CommonOpMode extends LinearOpMode {
             correction = pidDrive.performPID(getAngle());
             telemetryPID();
             backLeftMotor.setPower((pidPower - (correction / 2)));
-            frontLeftMotor.setPower((pidPower - (correction / 2)));
+            frontLeftMotor.setPower(-(pidPower - (correction / 2)));
             backRightMotor.setPower((pidPower - (correction / 2)));
-            frontRightMotor.setPower((pidPower - (correction / 2)));
+            frontRightMotor.setPower(-(pidPower - (correction / 2)));
         }
         stopDriveMotors();
     }

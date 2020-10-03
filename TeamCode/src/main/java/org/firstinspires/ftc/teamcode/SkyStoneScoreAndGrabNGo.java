@@ -26,7 +26,7 @@ public class SkyStoneScoreAndGrabNGo extends CommonOpMode {
 
         waitForStart();
 
-        while (opModeIsActive()) {
+        /*while (opModeIsActive()) {
             if (alliance == BLUE) {
                 if (position == LEFT) {
 
@@ -148,7 +148,7 @@ public class SkyStoneScoreAndGrabNGo extends CommonOpMode {
             }
 
 
-        }
+        }*/
     }
 }
 

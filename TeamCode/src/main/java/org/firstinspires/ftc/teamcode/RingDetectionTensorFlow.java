@@ -29,6 +29,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -40,8 +41,8 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 
 
-@TeleOp(name = "RingDetectionTensorFlow", group = "")
-public class RingDetectionTensorFlow extends LinearOpMode {
+@Autonomous(name = "RingDetectionTensorFlow", group = "")
+public class RingDetectionTensorFlow extends CommonOpMode {
     private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
     private static final String LABEL_FIRST_ELEMENT = "Quad";
     private static final String LABEL_SECOND_ELEMENT = "Single";
@@ -59,6 +60,8 @@ public class RingDetectionTensorFlow extends LinearOpMode {
         // first.
         initVuforia();
         initTfod();
+        initTestHardware2020();
+        initPID();
 
         /**
          * Activate TensorFlow Object Detection before we wait for the start command.
@@ -96,11 +99,61 @@ public class RingDetectionTensorFlow extends LinearOpMode {
                         int i = 0;
                         for (Recognition recognition : updatedRecognitions) {
                             telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
-                            telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
+                            /*telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
                                     recognition.getLeft(), recognition.getTop());
                             telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
-                                    recognition.getRight(), recognition.getBottom());
+                                    recognition.getRight(), recognition.getBottom());*/
+
+
+                            // to preface, this code is made with the assumption
+                            // that the robot starts on the side closest to the wall.
+                            if (recognition.getLabel().equals("Quad")) {
+                                // in the future, we'll want this code to move
+                                // the robot and Wobble Goal
+                                // to the farthest delivery square.
+
+                                // plan of attack:
+                                // scan the rings,
+                                // drive straight to the farthest square,
+                                // deliver the Wobble Goal,
+                                // drive backwards till the robot is atop the launch line,
+                                // stop the robot.
+
+                                telemetry.addData("It's a quad stack.", "4");
+                                telemetry.update();
+                                pidPower = .3;
+                                driveStraightForward(100);
+                            } else if (recognition.getLabel().equals("Single")) {
+                                // in the future, we'll want this code to move
+                                // the robot and Wobble Goal
+                                // to the second-closest delivery square.
+
+                                // plan of attack:
+                                // scan the rings,
+                                // drive straight to where the middle square should be (wall-side),
+                                // strafe to the middle square,
+                                // deliver the Wobble Goal,
+                                // drive backwards till the robot is atop the launch line,
+                                // stop the robot.
+
+                                telemetry.addData("It's a single stack.", "1");
+                                telemetry.update();
+                                pidPower = .3;
+                                driveStraightBackward(100);
+                            } else {
+                                // in the future, we'll want this code to move
+                                // the robot and Wobble Goal
+                                // to the closest delivery square.
+
+                                // plan of attack:
+                                // scan the rings,
+                                // drive straight to the closest square,
+                                // deliver the Wobble Goal,
+                                // drive backwards till the robot is atop the launch line,
+                                // stop the robot.
+                            }
                         }
+
                         telemetry.update();
                     }
                 }
