@@ -35,6 +35,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import java.util.List;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
@@ -60,8 +61,8 @@ public class RingDetectionTensorFlow extends CommonOpMode {
         // first.
         initVuforia();
         initTfod();
-        initTestHardware2020();
-        initPID();
+        //initTestHardware2020();
+        //initPID();
 
         /**
          * Activate TensorFlow Object Detection before we wait for the start command.
@@ -121,8 +122,8 @@ public class RingDetectionTensorFlow extends CommonOpMode {
 
                                 telemetry.addData("It's a quad stack.", "4");
                                 telemetry.update();
-                                pidPower = .3;
-                                driveStraightForward(100);
+                                // pidPower = .3;
+                                // driveStraightForward(100);
                             } else if (recognition.getLabel().equals("Single")) {
                                 // in the future, we'll want this code to move
                                 // the robot and Wobble Goal
@@ -138,8 +139,8 @@ public class RingDetectionTensorFlow extends CommonOpMode {
 
                                 telemetry.addData("It's a single stack.", "1");
                                 telemetry.update();
-                                pidPower = .3;
-                                driveStraightBackward(100);
+                                // pidPower = .3;
+                                // driveStraightBackward(100);
                             } else {
                                 // in the future, we'll want this code to move
                                 // the robot and Wobble Goal
@@ -175,7 +176,8 @@ public class RingDetectionTensorFlow extends CommonOpMode {
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraDirection = CameraDirection.BACK;
+        //parameters.cameraDirection = CameraDirection.BACK;
+        parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
 
         //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
