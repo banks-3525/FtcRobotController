@@ -46,9 +46,12 @@ public abstract class CommonOpMode extends LinearOpMode {
     public DcMotor frontLeftMotor;
     public DcMotor backLeftMotor;
     public DcMotor frontRightMotor;
-    public DcMotor backRightMotor;
-    public DcMotor leftSuctionMotor;
-    public DcMotor rightSuctionMotor;
+    public DcMotor backRightMotor;;
+    public DcMotor ringLauncher;
+    public DcMotor topIntakeMotor;
+    public DcMotor bottomIntakeMotor;
+
+
     static final int CYCLE_MS = 300;
 
     public ColorSensor rightColorSensor;
@@ -82,14 +85,18 @@ public abstract class CommonOpMode extends LinearOpMode {
     }
 
     public void initTestHardware2020() {
-        frontLeftMotor = hardwareMap.dcMotor.get("frm");
-        backLeftMotor = hardwareMap.dcMotor.get("blm");
-        frontRightMotor = hardwareMap.dcMotor.get("flm");
-        backRightMotor = hardwareMap.dcMotor.get("brm");
-        frontLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        backLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        //frontLeftMotor = hardwareMap.dcMotor.get("fr");
+        //backLeftMotor = hardwareMap.dcMotor.get("bl");
+       // frontRightMotor = hardwareMap.dcMotor.get("fl");
+       // backRightMotor = hardwareMap.dcMotor.get("br");
+        ringLauncher = hardwareMap.dcMotor.get("Rrm");
+        topIntakeMotor = hardwareMap.dcMotor.get("TIM");
+        bottomIntakeMotor = hardwareMap.dcMotor.get("BIM");
+
+        //frontLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        //backLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        //frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+       // backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
@@ -106,14 +113,13 @@ public abstract class CommonOpMode extends LinearOpMode {
         backLeftMotor = hardwareMap.dcMotor.get("blm");
         frontRightMotor = hardwareMap.dcMotor.get("flm");
         backRightMotor = hardwareMap.dcMotor.get("brm");
-        rightSuctionMotor = hardwareMap.dcMotor.get("lsm");
-        rightSuctionMotor = hardwareMap.dcMotor.get("rsm");
+        //rightSuctionMotor = hardwareMap.dcMotor.get("lsm");
+        //rightSuctionMotor = hardwareMap.dcMotor.get("rsm");
         rightColorSensor = hardwareMap.get(ColorSensor.class, "RightColorSensor");
         frontLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         backLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
@@ -606,9 +612,9 @@ public abstract class CommonOpMode extends LinearOpMode {
             correction = pidDrive.performPID(getAngle());
             telemetryPID();
             backLeftMotor.setPower((pidPower - (correction / 2)));
-            frontLeftMotor.setPower((pidPower - (correction / 2)));
+            frontLeftMotor.setPower(-(pidPower - (correction / 2)));
             backRightMotor.setPower((pidPower - (correction / 2)));
-            frontRightMotor.setPower((pidPower - (correction / 2)));
+            frontRightMotor.setPower(-(pidPower - (correction / 2)));
         }
         stopDriveMotors();
     }
@@ -713,4 +719,20 @@ public abstract class CommonOpMode extends LinearOpMode {
         frontRightMotor.setPower((pidPower - (correction / 2)));
     }
 
+    public void ringLauncherPrototype() {
+        if  (gamepad1.right_bumper) {
+            ringLauncher.setPower(-.5);
+        } else if (gamepad1.left_bumper) {
+            ringLauncher.setPower(0);
+        }
+    }
+    public void ringIntake() {
+        if (gamepad1.x) {
+            topIntakeMotor.setPower(1);
+            bottomIntakeMotor.setPower(1);
+        } else if (gamepad1.y) {
+            topIntakeMotor.setPower(0);
+            bottomIntakeMotor.setPower(0);
+        }
+    }
 }
