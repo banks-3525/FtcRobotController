@@ -59,8 +59,8 @@ public class RingDetectionTensorFlow extends CommonOpMode {
     public void runOpMode() {
         initVuforia();
         initTfod();
-        //initTestHardware2020();
-        //initPID();
+        initTestHardware2020();
+        initPID();
 
         if (tfod != null) {
             tfod.activate();
@@ -74,8 +74,12 @@ public class RingDetectionTensorFlow extends CommonOpMode {
         telemetry.update();
         waitForStart();
 
+        setupPIDParameters();
+
         if (opModeIsActive()) {
             while (opModeIsActive()) {
+                driveStraightForward(10);
+
                 if (tfod != null) {
                     // getUpdatedRecognitions() will return null if no new information is available since
                     // the last time that call was made.
@@ -109,8 +113,9 @@ public class RingDetectionTensorFlow extends CommonOpMode {
 
                                 telemetry.addData("It's a quad stack.", "4");
                                 telemetry.update();
-                                // pidPower = .3;
-                                // driveStraightForward(100);
+                                sleep(1000);
+                                strafeRight(20);
+                                driveStraightForward(180);
                             } else if (recognition.getLabel().equals("Single")) {
                                 // in the future, we'll want this code to move
                                 // the robot and Wobble Goal
@@ -126,9 +131,16 @@ public class RingDetectionTensorFlow extends CommonOpMode {
 
                                 telemetry.addData("It's a single stack.", "1");
                                 telemetry.update();
+                                sleep(1000);
+                                strafeRight(30);
+                                driveStraightForward(230);
                                 // pidPower = .3;
                                 // driveStraightBackward(100);
                             } else {
+
+                                sleep(1000);
+                                strafeRight(20);
+                                driveStraightForward(190);
                                 // in the future, we'll want this code to move
                                 // the robot and Wobble Goal
                                 // to the closest delivery square.
@@ -145,6 +157,8 @@ public class RingDetectionTensorFlow extends CommonOpMode {
                         telemetry.update();
                     }
                 }
+
+
             }
         }
 

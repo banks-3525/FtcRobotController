@@ -7,14 +7,16 @@ public class TeleOpMA extends CommonOpMode {
 
     @Override
     public void runOpMode() {
-
         initTestHardware2020();
-
 
         waitForStart();
 
         while (opModeIsActive()) {
+            drive();
             ringIntake();
+            liftControl();
+            ringLauncher();
+            ringPush();
             getGeneralTelemetry();
         }
 

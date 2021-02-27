@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
+@Disabled
 @Autonomous(name = "GrabNGoBBIT", group = "")
 public class GrabNGoBBIT extends CommonOpMode {
 
@@ -9,7 +11,7 @@ public class GrabNGoBBIT extends CommonOpMode {
 
     @Override
     public void runOpMode() {
-        initHardware();
+        //initHardware();
 
         allianceChooser();
 

@@ -47,10 +47,14 @@ public abstract class CommonOpMode extends LinearOpMode {
     public DcMotor backLeftMotor;
     public DcMotor frontRightMotor;
     public DcMotor backRightMotor;;
-    public DcMotor ringLauncher;
+    public DcMotor ringLauncherMotor;
     public DcMotor topIntakeMotor;
     public DcMotor bottomIntakeMotor;
 
+    public Servo ringPushServo;
+    public Servo liftAngleServo;
+    public Servo grabberPivotServo;
+    public Servo wobbleGrabber;
 
     static final int CYCLE_MS = 300;
 
@@ -85,41 +89,33 @@ public abstract class CommonOpMode extends LinearOpMode {
     }
 
     public void initTestHardware2020() {
-        //frontLeftMotor = hardwareMap.dcMotor.get("fr");
-        //backLeftMotor = hardwareMap.dcMotor.get("bl");
-       // frontRightMotor = hardwareMap.dcMotor.get("fl");
-       // backRightMotor = hardwareMap.dcMotor.get("br");
-        ringLauncher = hardwareMap.dcMotor.get("Rrm");
+        frontLeftMotor = hardwareMap.dcMotor.get("fr");
+        backLeftMotor = hardwareMap.dcMotor.get("bl");
+        frontRightMotor = hardwareMap.dcMotor.get("fl");
+        backRightMotor = hardwareMap.dcMotor.get("br");
+        ringLauncherMotor = hardwareMap.dcMotor.get("RING");
         topIntakeMotor = hardwareMap.dcMotor.get("TIM");
         bottomIntakeMotor = hardwareMap.dcMotor.get("BIM");
+
+        liftAngleServo = hardwareMap.servo.get("LAS");
+        ringPushServo = hardwareMap.servo.get("RPS");
+        //grabberPivotServo = hardwareMap.servo.get("GPS");
+        //wobbleGrabber = hardwareMap.servo.get("WG");
+
+        /*frontLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);*/
+
 
         //frontLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         //backLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         //frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-       // backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
-        imu.initialize(parameters);
-
-        parameters.mode = BNO055IMU.SensorMode.IMU;
-        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.loggingEnabled = false;
-    }
-
-
-    public void initHardware() {
-        frontLeftMotor = hardwareMap.dcMotor.get("frm");
-        backLeftMotor = hardwareMap.dcMotor.get("blm");
-        frontRightMotor = hardwareMap.dcMotor.get("flm");
-        backRightMotor = hardwareMap.dcMotor.get("brm");
-        //rightSuctionMotor = hardwareMap.dcMotor.get("lsm");
-        //rightSuctionMotor = hardwareMap.dcMotor.get("rsm");
-        rightColorSensor = hardwareMap.get(ColorSensor.class, "RightColorSensor");
-        frontLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        backLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        //backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
@@ -193,9 +189,13 @@ public abstract class CommonOpMode extends LinearOpMode {
     }
 
     public void getGeneralTelemetry() {
-        telemetry.addData("IncrementLevel", increment);
-        telemetry.addData("speed adjust", "%.2f", speedAdjust);
-        telemetry.addData("Arm target position:", "%d", currentHeight);
+        telemetry.addData("Back Left Encoders:", backLeftMotor.getCurrentPosition());
+        telemetry.addData("Front Left Encoders:", frontLeftMotor.getCurrentPosition());
+        telemetry.addData("Back Right Encoders:", backRightMotor.getCurrentPosition());
+        telemetry.addData("Front Right Encoders:", frontRightMotor.getCurrentPosition());
+        //telemetry.addData("IncrementLevel", increment);
+        //telemetry.addData("speed adjust", "%.2f", speedAdjust);
+        //telemetry.addData("Arm target position:", "%d", currentHeight);
         //telemetry.addData("Left actuator position:", "%d", leftactuator.getPosition());
         //telemetry.addData("Right actuator position:", "%d", rightactuator.getPosition());
         //telemetry.addData("Skystone", checkSkystone());
@@ -234,19 +234,39 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     }
 
+    public boolean joysticksActive() {
+        if ((gamepad1.left_stick_y == 0) || (gamepad1.left_stick_x == 0) || (gamepad1.right_stick_x == 0)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     public void drive() {
         double yAxis;
         double xAxis;
-        double turn;
+        double strafe;
 
-        yAxis = gamepad1.left_stick_y;
+        yAxis = -gamepad1.left_stick_y;
         xAxis = gamepad1.left_stick_x;
-        turn = gamepad1.right_stick_x;
+        strafe = -gamepad1.right_stick_x;
         //DON'T CHANGE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        backLeftMotor.setPower((yAxis + xAxis - turn) * (-speedAdjust / 10));
-        frontLeftMotor.setPower((yAxis - xAxis - turn) * (-speedAdjust / 10));
-        backRightMotor.setPower((yAxis - xAxis + turn) * (-speedAdjust / 10));
-        frontRightMotor.setPower((yAxis + xAxis + turn) * (-speedAdjust / 10));
+        backLeftMotor.setPower((yAxis + xAxis - strafe) * (-speedAdjust / 10));
+        frontLeftMotor.setPower(-(yAxis - xAxis - strafe) * (-speedAdjust / 10));
+        backRightMotor.setPower(-(yAxis - xAxis + strafe) * (-speedAdjust / 10));
+        frontRightMotor.setPower((yAxis + xAxis + strafe) * (-speedAdjust / 10));
+
+        if (!joysticksActive()) {
+            backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        } else {
+            backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        }
     }
 
     public void lessThanEqualDistance(double target) {
@@ -268,6 +288,13 @@ public abstract class CommonOpMode extends LinearOpMode {
         backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
+    }
+
+    public void resetEncoders() {
+        frontLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     public void resetDriveWithoutEncoder() {
@@ -607,12 +634,13 @@ public abstract class CommonOpMode extends LinearOpMode {
         double distance_encoder = (int) ((distance_cm * 383.6) / 31.4);
 
         resetDriveWithoutEncoder();
+        //resetEncoders();
 
-        while (abs(frontLeftMotor.getCurrentPosition()) <= abs(distance_encoder) && opModeIsActive()) {
+        while (abs(frontRightMotor.getCurrentPosition()) <= abs(distance_encoder) && opModeIsActive()) {
             correction = pidDrive.performPID(getAngle());
             telemetryPID();
-            backLeftMotor.setPower((pidPower - (correction / 2)));
-            frontLeftMotor.setPower(-(pidPower - (correction / 2)));
+            backLeftMotor.setPower(-(pidPower - (correction / 2)));
+            frontLeftMotor.setPower((pidPower - (correction / 2)));
             backRightMotor.setPower((pidPower - (correction / 2)));
             frontRightMotor.setPower(-(pidPower - (correction / 2)));
         }
@@ -624,29 +652,13 @@ public abstract class CommonOpMode extends LinearOpMode {
 
         resetDriveWithoutEncoder();
 
-        while (abs(frontLeftMotor.getCurrentPosition()) <= abs(distance_encoder) && opModeIsActive()) {
+        while (abs(frontRightMotor.getCurrentPosition()) <= abs(distance_encoder) && opModeIsActive()) {
             correction = pidDrive.performPID(getAngle());
             telemetryPID();
-            backLeftMotor.setPower(-(pidPower + (correction / 2)));
+            backLeftMotor.setPower((pidPower + (correction / 2)));
             frontLeftMotor.setPower(-(pidPower + (correction / 2)));
             backRightMotor.setPower(-(pidPower - (correction / 2)));
-            frontRightMotor.setPower(-(pidPower - (correction / 2)));
-        }
-        stopDriveMotors();
-    }
-
-    public void strafeLeft(int distance_cm) {
-        double distance_encoder = (int) ((distance_cm * 383.6) / 31.4);
-
-        resetDriveWithoutEncoder();
-
-        while (abs(frontLeftMotor.getCurrentPosition()) <= abs(distance_encoder) && opModeIsActive()) {
-            correction = pidDrive.performPID(getAngle());
-            telemetryPID();
-            backLeftMotor.setPower(pidPower - (correction / 2));
-            frontLeftMotor.setPower(-pidPower - (correction / 2));
-            backRightMotor.setPower(-pidPower + (correction / 2));
-            frontRightMotor.setPower(pidPower + (correction / 2));
+            frontRightMotor.setPower((pidPower - (correction / 2)));
         }
         stopDriveMotors();
     }
@@ -656,11 +668,27 @@ public abstract class CommonOpMode extends LinearOpMode {
 
         resetDriveWithoutEncoder();
 
-        while (abs(frontLeftMotor.getCurrentPosition()) <= abs(distance_encoder) && opModeIsActive()) {
+        while (abs(frontRightMotor.getCurrentPosition()) <= abs(distance_encoder) && opModeIsActive()) {
             correction = pidDrive.performPID(getAngle());
             telemetryPID();
             backLeftMotor.setPower(-pidPower - (correction / 2));
             frontLeftMotor.setPower(pidPower - (correction / 2));
+            backRightMotor.setPower(-pidPower + (correction / 2));
+            frontRightMotor.setPower(pidPower + (correction / 2));
+        }
+        stopDriveMotors();
+    }
+
+    public void strafeLeft(int distance_cm) {
+        double distance_encoder = (int) ((distance_cm * 383.6) / 31.4);
+
+        resetDriveWithoutEncoder();
+
+        while (abs(frontRightMotor.getCurrentPosition()) <= abs(distance_encoder) && opModeIsActive()) {
+            correction = pidDrive.performPID(getAngle());
+            telemetryPID();
+            backLeftMotor.setPower(pidPower - (correction / 2));
+            frontLeftMotor.setPower(-pidPower - (correction / 2));
             backRightMotor.setPower(pidPower + (correction / 2));
             frontRightMotor.setPower(-pidPower + (correction / 2));
         }
@@ -719,20 +747,70 @@ public abstract class CommonOpMode extends LinearOpMode {
         frontRightMotor.setPower((pidPower - (correction / 2)));
     }
 
-    public void ringLauncherPrototype() {
-        if  (gamepad1.right_bumper) {
-            ringLauncher.setPower(-.5);
-        } else if (gamepad1.left_bumper) {
-            ringLauncher.setPower(0);
+    public void ringLauncher() {
+        if  (gamepad1.right_trigger == 1) {
+            ringLauncherMotor.setPower(1);
+            liftAngleServo.setPosition(.65);
+        } else if (gamepad1.right_trigger == 0) {
+            ringLauncherMotor.setPower(0);
         }
     }
+
+    public void autoRingLauncher() {
+            ringLauncherMotor.setPower(1);
+            sleep(2000);
+            ringLauncherMotor.setPower(0);
+    }
+
     public void ringIntake() {
-        if (gamepad1.x) {
-            topIntakeMotor.setPower(1);
+        if (gamepad1.left_trigger == 1 ) {
+            topIntakeMotor.setPower(-1);
             bottomIntakeMotor.setPower(1);
-        } else if (gamepad1.y) {
+            liftAngleServo.setPosition(.145);
+        } else if (gamepad1.left_trigger  == 0) {
             topIntakeMotor.setPower(0);
             bottomIntakeMotor.setPower(0);
         }
+
+        if (gamepad1.left_bumper) {
+            topIntakeMotor.setPower(1);
+            bottomIntakeMotor.setPower(-1);
+        }
+    }
+
+    public void liftControl() {
+        if (gamepad1.dpad_up) {
+            liftAngleServo.setPosition(.65);
+        } else if (gamepad1.dpad_down) {
+            liftAngleServo.setPosition(.15);
+        }
+    }
+
+    public void wobbleGoalGrabberPivot () {
+        if(gamepad1.a){
+            grabberPivotServo.setPosition(-.5);
+        }else if (gamepad1.b){
+            grabberPivotServo.setPosition(-.15);
+        }
+
+    }
+
+    public void wobbleGoalGrabber () {
+        if (gamepad1.x){
+            wobbleGrabber.setPosition(.5);
+        }else if (gamepad1.y){
+            wobbleGrabber.setPosition(.15);
+        }
+    }
+
+    public void ringPush(){
+        if (gamepad1.dpad_right){
+            ringPushServo.setPosition(.15);
+        } else {
+            ringPushServo.setPosition(.50);
+        }
+        /*else if (gamepad1.dpad_left) {
+            ringPushServo.setPosition(.15);
+        }*/
     }
 }
