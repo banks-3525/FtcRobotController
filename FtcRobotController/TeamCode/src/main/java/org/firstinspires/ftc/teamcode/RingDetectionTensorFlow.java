@@ -59,7 +59,7 @@ public class RingDetectionTensorFlow extends CommonOpMode {
     public void runOpMode() {
         initVuforia();
         initTfod();
-        //initTestHardware2020();
+        //initHardware();
         //initPID();
 
         if (tfod != null) {
