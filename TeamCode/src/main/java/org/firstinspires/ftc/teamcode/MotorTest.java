@@ -7,7 +7,7 @@ public class MotorTest extends CommonOpMode {
 
     @Override
     public void runOpMode() {
-        initTestHardware2020();
+        initHardware2020();
 
         waitForStart();
 

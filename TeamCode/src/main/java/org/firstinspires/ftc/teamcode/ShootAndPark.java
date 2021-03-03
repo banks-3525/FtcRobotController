@@ -45,7 +45,7 @@ public class ShootAndPark extends CommonOpMode {
 
     @Override
     public void runOpMode() {
-        initTestHardware2020();
+        initHardware2020();
         initPID();
 
         /** Wait for the game to begin */

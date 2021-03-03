@@ -59,7 +59,7 @@ public class RingDetectionTensorFlow extends CommonOpMode {
     public void runOpMode() {
         initVuforia();
         initTfod();
-        initTestHardware2020();
+        initHardware2020();
         initPID();
 
         if (tfod != null) {
@@ -107,14 +107,14 @@ public class RingDetectionTensorFlow extends CommonOpMode {
                                 // plan of attack:
                                 // scan the rings,
                                 // drive straight to the farthest square,
-                                // deliver the Wobble Goal,
+                                // deliv`er the Wobble Goal,
                                 // drive backwards till the robot is atop the launch line,
                                 // stop the robot.
 
                                 telemetry.addData("It's a quad stack.", "4");
                                 telemetry.update();
                                 sleep(1000);
-                                strafeRight(20);
+                                strafeRight(30);
                                 driveStraightForward(180);
                             } else if (recognition.getLabel().equals("Single")) {
                                 // in the future, we'll want this code to move
@@ -131,16 +131,16 @@ public class RingDetectionTensorFlow extends CommonOpMode {
 
                                 telemetry.addData("It's a single stack.", "1");
                                 telemetry.update();
-                                sleep(1000);
-                                strafeRight(30);
-                                driveStraightForward(230);
+                                //sleep(1000);
+                                //strafeRight(30);
+                               // driveStraightForward(230);
                                 // pidPower = .3;
                                 // driveStraightBackward(100);
                             } else {
 
-                                sleep(1000);
-                                strafeRight(20);
-                                driveStraightForward(190);
+                               // sleep(1000);
+                               // strafeRight(20);
+                                //driveStraightForward(190);
                                 // in the future, we'll want this code to move
                                 // the robot and Wobble Goal
                                 // to the closest delivery square.

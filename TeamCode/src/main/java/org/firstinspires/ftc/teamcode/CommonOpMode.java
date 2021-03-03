@@ -88,7 +88,7 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     }
 
-    public void initTestHardware2020() {
+    public void initHardware2020() {
         frontLeftMotor = hardwareMap.dcMotor.get("fr");
         backLeftMotor = hardwareMap.dcMotor.get("bl");
         frontRightMotor = hardwareMap.dcMotor.get("fl");
@@ -497,7 +497,7 @@ public abstract class CommonOpMode extends LinearOpMode {
 
         // Set PID proportional value to produce non-zero correction value when robot veers off
         // straight line. P value controls how sensitive the correction is.
-        pidDrive = new PIDController(.05, 0, 0);
+        pidDrive = new PIDController(.09, 0, 0);
 
         telemetry.addData("Mode", "calibrating...");
         telemetry.update();
@@ -782,7 +782,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         if (gamepad1.dpad_up) {
             liftAngleServo.setPosition(.65);
         } else if (gamepad1.dpad_down) {
-            liftAngleServo.setPosition(.15);
+            liftAngleServo.setPosition(.21);
         }
     }
 
