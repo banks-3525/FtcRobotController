@@ -247,14 +247,21 @@ public abstract class CommonOpMode extends LinearOpMode {
         double xAxis;
         double strafe;
 
-        yAxis = -gamepad1.left_stick_y;
+        yAxis = gamepad1.left_stick_y;
         xAxis = gamepad1.left_stick_x;
-        strafe = -gamepad1.right_stick_x;
+        strafe = gamepad1.right_stick_x;
         //DON'T CHANGE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        backLeftMotor.setPower((yAxis + xAxis - strafe) * (-speedAdjust / 10));
-        frontLeftMotor.setPower(-(yAxis - xAxis - strafe) * (-speedAdjust / 10));
-        backRightMotor.setPower(-(yAxis - xAxis + strafe) * (-speedAdjust / 10));
-        frontRightMotor.setPower((yAxis + xAxis + strafe) * (-speedAdjust / 10));
+        backLeftMotor.setPower((-yAxis + xAxis /*+ strafe*/) * (-speedAdjust / 10));
+        frontLeftMotor.setPower((yAxis + xAxis /*- strafe*/) * (-speedAdjust / 10));
+        backRightMotor.setPower((yAxis + xAxis /*+ strafe*/) * (-speedAdjust / 10));
+        frontRightMotor.setPower((-yAxis + xAxis /*- strafe*/) * (-speedAdjust / 10));
+
+        if (strafe == 1 || strafe == -1) {
+            backLeftMotor.setPower((strafe) * (-speedAdjust / 10));
+            frontLeftMotor.setPower((-strafe) * (-speedAdjust / 10));
+            backRightMotor.setPower((strafe) * (-speedAdjust / 10));
+            frontRightMotor.setPower((-strafe) * (-speedAdjust / 10));
+        }
 
         if (!joysticksActive()) {
             backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -286,8 +293,6 @@ public abstract class CommonOpMode extends LinearOpMode {
         backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-
     }
 
     public void resetEncoders() {
@@ -634,7 +639,6 @@ public abstract class CommonOpMode extends LinearOpMode {
         double distance_encoder = (int) ((distance_cm * 383.6) / 31.4);
 
         resetDriveWithoutEncoder();
-        //resetEncoders();
 
         while (abs(frontRightMotor.getCurrentPosition()) <= abs(distance_encoder) && opModeIsActive()) {
             correction = pidDrive.performPID(getAngle());
