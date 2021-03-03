@@ -502,7 +502,7 @@ public abstract class CommonOpMode extends LinearOpMode {
 
         // Set PID proportional value to produce non-zero correction value when robot veers off
         // straight line. P value controls how sensitive the correction is.
-        pidDrive = new PIDController(.09, 0, 0);
+        pidDrive = new PIDController(.07, 0, 0);
 
         telemetry.addData("Mode", "calibrating...");
         telemetry.update();

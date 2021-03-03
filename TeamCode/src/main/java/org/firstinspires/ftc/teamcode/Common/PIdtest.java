@@ -20,7 +20,7 @@ public class PIdtest extends CommonOpMode {
         setupPIDParameters();
 
         if (opModeIsActive()) {
-            driveStraightForward(100);
+            driveStraightForward(200);
         }
 
 
