@@ -57,15 +57,13 @@ public class ShootAndPark extends CommonOpMode {
 
         if (opModeIsActive()) {
             while (opModeIsActive()) {
-                pidPower = .6;
                 ringPushServo.setPosition(.50);
-                //driveStraightForward(240);
 
                 strafeRight(20);
                 driveStraightForward(200);
                 ringLauncherMotor.setPower(1);
                 liftAngleServo.setPosition(.65);
-                sleep(6000);
+                sleep(5000);
 
                 ringPushServo.setPosition(.15);
                 sleep(750);
@@ -83,14 +81,7 @@ public class ShootAndPark extends CommonOpMode {
                 sleep(750);
                 ringPushServo.setPosition(.50);
 
-                driveStraightForward(30);
-
-                /*backLeftMotor.setPower(-1);
-                frontLeftMotor.setPower(1);
-                backRightMotor.setPower(1);
-                frontRightMotor.setPower(-1);
-                sleep(1000);
-                stopDriveMotors();*/
+                driveStraightForward(45);
                 break;
             }
         }

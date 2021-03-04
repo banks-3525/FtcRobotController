@@ -189,19 +189,13 @@ public abstract class CommonOpMode extends LinearOpMode {
     }
 
     public void getGeneralTelemetry() {
-        telemetry.addData("Back Left Encoders:", backLeftMotor.getCurrentPosition());
-        telemetry.addData("Front Left Encoders:", frontLeftMotor.getCurrentPosition());
-        telemetry.addData("Back Right Encoders:", backRightMotor.getCurrentPosition());
-        telemetry.addData("Front Right Encoders:", frontRightMotor.getCurrentPosition());
+        telemetry.addData("Angle Reading:", getAngle());
+        //telemetry.addData("Back Left Encoders:", backLeftMotor.getCurrentPosition());
+        //telemetry.addData("Front Left Encoders:", frontLeftMotor.getCurrentPosition());
+        //telemetry.addData("Back Right Encoders:", backRightMotor.getCurrentPosition());
+        //telemetry.addData("Front Right Encoders:", frontRightMotor.getCurrentPosition());
         //telemetry.addData("IncrementLevel", increment);
         //telemetry.addData("speed adjust", "%.2f", speedAdjust);
-        //telemetry.addData("Arm target position:", "%d", currentHeight);
-        //telemetry.addData("Left actuator position:", "%d", leftactuator.getPosition());
-        //telemetry.addData("Right actuator position:", "%d", rightactuator.getPosition());
-        //telemetry.addData("Skystone", checkSkystone());
-        //telemetry.addData("Skystone Diffenence Determinent", leftColorSensor.red() - rightColorSensor.red());
-        //telemetry.addData("Left red value", leftColorSensor.red());
-        //telemetry.addData("Right red value", rightColorSensor.red());
         telemetry.update();
     }
 
