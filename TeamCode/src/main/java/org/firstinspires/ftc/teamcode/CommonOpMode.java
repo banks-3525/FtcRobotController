@@ -42,7 +42,6 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     boolean armPress = false;
 
-
     public DcMotor frontLeftMotor;
     public DcMotor backLeftMotor;
     public DcMotor frontRightMotor;
@@ -66,7 +65,6 @@ public abstract class CommonOpMode extends LinearOpMode {
     BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
     PIDController pidRotate, pidDrive;
 
-
     public void allianceChooser() {
         if (gamepad1.b) {
             telemetry.addData("red", "alliance");
@@ -85,7 +83,6 @@ public abstract class CommonOpMode extends LinearOpMode {
         }
 
         telemetry.update();
-
     }
 
     public void initHardware2020() {
@@ -271,7 +268,6 @@ public abstract class CommonOpMode extends LinearOpMode {
             sleep(CYCLE_MS);
             idle();
         }
-
     }
 
     public void resetDrive() {
