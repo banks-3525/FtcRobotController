@@ -578,40 +578,24 @@ public abstract class CommonOpMode extends LinearOpMode {
         // rotate until turn is completed.
 
         if (degrees < 0) {
-            // On right turn we have to get off zero first.
-            /*while (opModeIsActive() && getAngle() == 0) {
-                rightTurn(power, degrees);
-                telemetry.addData("1", "Yes");
-                telemetry.update();
-                sleep(100);
-            }*/
-
-            do {
+            do { // right turn
                 power = pidRotate.performPID(getAngle()); // power will be - on right turn.
-                //rightTurn(-power, degrees);
                 backLeftMotor.setPower(power);
                 frontLeftMotor.setPower(power);
                 backRightMotor.setPower(power);
                 frontRightMotor.setPower(power);
-                telemetry.addData("2", "Yes");
-                telemetry.update();
-            } while (opModeIsActive() && getAngle() > degrees/*!pidRotate.onTarget()*/);
-        } else    // left turn.
-            do {
+            } while (opModeIsActive() && getAngle() > degrees);
+        } else
+            do { // left turn
                 power = pidRotate.performPID(getAngle()); // power will be + on left turn.
-                //leftTurn(-power, degrees);
                 backLeftMotor.setPower(power);
                 frontLeftMotor.setPower(power);
                 backRightMotor.setPower(power);
                 frontRightMotor.setPower(power);
-                telemetry.addData("3", "Yes");
-                telemetry.update();
-            } while (opModeIsActive() && getAngle() < degrees/*!pidRotate.onTarget()*/);
+            } while (opModeIsActive() && getAngle() < degrees);
 
         // turn the motors off.
         stopDriveMotors();
-
-        rotation = getAngle();
 
         // wait for rotation to stop.
         sleep(250);
@@ -698,10 +682,10 @@ public abstract class CommonOpMode extends LinearOpMode {
         while (abs(frontRightMotor.getCurrentPosition()) <= abs(distance_encoder) && opModeIsActive()) {
             correction = pidDrive.performPID(getAngle());
             telemetryPID();
-            backLeftMotor.setPower(-pidPower - (correction / 2));
-            frontLeftMotor.setPower(pidPower - (correction / 2));
-            backRightMotor.setPower(-pidPower + (correction / 2));
-            frontRightMotor.setPower(pidPower + (correction / 2));
+            backLeftMotor.setPower(-(pidPower - (correction / 2)));
+            frontLeftMotor.setPower((pidPower - (correction / 2)));
+            backRightMotor.setPower(-(pidPower + (correction / 2)));
+            frontRightMotor.setPower((pidPower + (correction / 2)));
         }
         stopDriveMotors();
     }
@@ -714,10 +698,10 @@ public abstract class CommonOpMode extends LinearOpMode {
         while (abs(frontRightMotor.getCurrentPosition()) <= abs(distance_encoder) && opModeIsActive()) {
             correction = pidDrive.performPID(getAngle());
             telemetryPID();
-            backLeftMotor.setPower(pidPower - (correction / 2));
-            frontLeftMotor.setPower(-pidPower - (correction / 2));
-            backRightMotor.setPower(pidPower + (correction / 2));
-            frontRightMotor.setPower(-pidPower + (correction / 2));
+            backLeftMotor.setPower((pidPower - (correction / 2)));
+            frontLeftMotor.setPower(-(pidPower - (correction / 2)));
+            backRightMotor.setPower((pidPower + (correction / 2)));
+            frontRightMotor.setPower(-(pidPower + (correction / 2)));
         }
         stopDriveMotors();
     }
