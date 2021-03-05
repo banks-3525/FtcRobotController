@@ -59,7 +59,7 @@ public class ShootAndPark extends CommonOpMode {
             while (opModeIsActive()) {
                 ringPushServo.setPosition(.50);
 
-                strafeRight(20);
+                strafeLeft(20);
                 driveStraightForward(200);
                 ringLauncherMotor.setPower(1);
                 liftAngleServo.setPosition(.65);

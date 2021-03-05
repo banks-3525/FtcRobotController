@@ -57,7 +57,11 @@ public class PIDTest extends CommonOpMode {
 
         if (opModeIsActive()) {
             while (opModeIsActive()) {
-                driveStraightForward(150);
+                //driveStraightForward(150);
+                //rotate(90, pidPower);
+                rotate(-90, pidPower);
+                //strafeLeft(100);
+                //rightTurnNoPID(90);
                 break;
             }
         }

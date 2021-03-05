@@ -21,7 +21,7 @@ import static java.lang.Math.abs;
 //GoBilda 5202 YellowJacket ticks 383.6 = 384
 public abstract class CommonOpMode extends LinearOpMode {
 
-    private ElapsedTime runtime = new ElapsedTime();
+    private final ElapsedTime runtime = new ElapsedTime();
     double speedAdjust = 8;
     boolean speedUp = false;
     boolean slowDown = false;
@@ -46,7 +46,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     public DcMotor frontLeftMotor;
     public DcMotor backLeftMotor;
     public DcMotor frontRightMotor;
-    public DcMotor backRightMotor;;
+    public DcMotor backRightMotor;
     public DcMotor ringLauncherMotor;
     public DcMotor topIntakeMotor;
     public DcMotor bottomIntakeMotor;
@@ -229,11 +229,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     }
 
     public boolean joysticksActive() {
-        if ((gamepad1.left_stick_y == 0) || (gamepad1.left_stick_x == 0) || (gamepad1.right_stick_x == 0)) {
-            return false;
-        } else {
-            return true;
-        }
+        return (gamepad1.left_stick_y != 0) && (gamepad1.left_stick_x != 0) && (gamepad1.right_stick_x != 0);
     }
 
     public void drive() {
@@ -312,6 +308,10 @@ public abstract class CommonOpMode extends LinearOpMode {
         backLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         frontRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         backRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
+    public void brakeDriveMotors() {
+
     }
 
     public void stopDriveMotors() {
@@ -496,7 +496,7 @@ public abstract class CommonOpMode extends LinearOpMode {
 
         // Set PID proportional value to produce non-zero correction value when robot veers off
         // straight line. P value controls how sensitive the correction is.
-        pidDrive = new PIDController(.1, 0, 0);
+        pidDrive = new PIDController(.025, 0, 0);
 
         telemetry.addData("Mode", "calibrating...");
         telemetry.update();
@@ -579,20 +579,34 @@ public abstract class CommonOpMode extends LinearOpMode {
 
         if (degrees < 0) {
             // On right turn we have to get off zero first.
-            while (opModeIsActive() && getAngle() == 0) {
-                //rightTurn(power);
+            /*while (opModeIsActive() && getAngle() == 0) {
+                rightTurn(power, degrees);
+                telemetry.addData("1", "Yes");
+                telemetry.update();
                 sleep(100);
-            }
+            }*/
 
             do {
                 power = pidRotate.performPID(getAngle()); // power will be - on right turn.
-                //rightTurn(-power);
-            } while (opModeIsActive() && !pidRotate.onTarget());
+                //rightTurn(-power, degrees);
+                backLeftMotor.setPower(power);
+                frontLeftMotor.setPower(power);
+                backRightMotor.setPower(power);
+                frontRightMotor.setPower(power);
+                telemetry.addData("2", "Yes");
+                telemetry.update();
+            } while (opModeIsActive() && getAngle() > degrees/*!pidRotate.onTarget()*/);
         } else    // left turn.
             do {
                 power = pidRotate.performPID(getAngle()); // power will be + on left turn.
-                //leftTurn(power);
-            } while (opModeIsActive() && !pidRotate.onTarget());
+                //leftTurn(-power, degrees);
+                backLeftMotor.setPower(power);
+                frontLeftMotor.setPower(power);
+                backRightMotor.setPower(power);
+                frontRightMotor.setPower(power);
+                telemetry.addData("3", "Yes");
+                telemetry.update();
+            } while (opModeIsActive() && getAngle() < degrees/*!pidRotate.onTarget()*/);
 
         // turn the motors off.
         stopDriveMotors();
@@ -608,11 +622,24 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     public void rightTurn(double power, double radian) {
         resetDrive();
-        while (abs(frontLeftMotor.getCurrentPosition()) <= abs(radian) && opModeIsActive()) {
-            backLeftMotor.setPower(-power);
-            frontLeftMotor.setPower(-power);
+        while (abs(frontRightMotor.getCurrentPosition()) <= abs(radian) && opModeIsActive()) {
+            backLeftMotor.setPower(power);
+            frontLeftMotor.setPower(power);
             backRightMotor.setPower(power);
             frontRightMotor.setPower(power);
+            telemetry.addData("rightTurn", "Yes");
+            telemetry.update();
+        }
+        stopDriveMotors();
+    }
+
+    public void rightTurnNoPID(double radian) {
+        resetDriveWithoutEncoder();
+        while (getAngle() >= -radian && opModeIsActive()) {
+            backLeftMotor.setPower(-1);
+            frontLeftMotor.setPower(-1);
+            backRightMotor.setPower(-1);
+            frontRightMotor.setPower(-1);
         }
         stopDriveMotors();
     }
@@ -620,11 +647,13 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     public void leftTurn(double power, double radian) {
         resetDrive();
-        while (abs(frontLeftMotor.getCurrentPosition()) <= abs(radian) && opModeIsActive()) {
-            backLeftMotor.setPower(power);
-            frontLeftMotor.setPower(power);
+        while (abs(frontRightMotor.getCurrentPosition()) <= abs(radian) && opModeIsActive()) {
+            backLeftMotor.setPower(-power);
+            frontLeftMotor.setPower(-power);
             backRightMotor.setPower(-power);
             frontRightMotor.setPower(-power);
+            telemetry.addData("leftTurn", "Yes");
+            telemetry.update();
         }
         stopDriveMotors();
     }
@@ -746,7 +775,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     }
 
     public void ringLauncher() {
-        if  (gamepad1.right_trigger == 1) {
+        if (gamepad1.right_trigger == 1) {
             ringLauncherMotor.setPower(1);
             liftAngleServo.setPosition(.65);
         } else if (gamepad1.right_trigger == 0) {
@@ -755,17 +784,17 @@ public abstract class CommonOpMode extends LinearOpMode {
     }
 
     public void autoRingLauncher() {
-            ringLauncherMotor.setPower(1);
-            sleep(2000);
-            ringLauncherMotor.setPower(0);
+        ringLauncherMotor.setPower(1);
+        sleep(2000);
+        ringLauncherMotor.setPower(0);
     }
 
     public void ringIntake() {
-        if (gamepad1.left_trigger == 1 ) {
+        if (gamepad1.left_trigger == 1) {
             topIntakeMotor.setPower(-1);
             bottomIntakeMotor.setPower(1);
             liftAngleServo.setPosition(.145);
-        } else if (gamepad1.left_trigger  == 0) {
+        } else if (gamepad1.left_trigger == 0) {
             topIntakeMotor.setPower(0);
             bottomIntakeMotor.setPower(0);
         }
@@ -784,25 +813,25 @@ public abstract class CommonOpMode extends LinearOpMode {
         }
     }
 
-    public void wobbleGoalGrabberPivot () {
-        if(gamepad1.a){
+    public void wobbleGoalGrabberPivot() {
+        if (gamepad1.a) {
             grabberPivotServo.setPosition(-.5);
-        }else if (gamepad1.b){
+        } else if (gamepad1.b) {
             grabberPivotServo.setPosition(-.15);
         }
 
     }
 
-    public void wobbleGoalGrabber () {
-        if (gamepad1.x){
+    public void wobbleGoalGrabber() {
+        if (gamepad1.x) {
             wobbleGrabber.setPosition(.5);
-        }else if (gamepad1.y){
+        } else if (gamepad1.y) {
             wobbleGrabber.setPosition(.15);
         }
     }
 
-    public void ringPush(){
-        if (gamepad1.dpad_right){
+    public void ringPush() {
+        if (gamepad1.dpad_right) {
             ringPushServo.setPosition(.15);
         } else {
             ringPushServo.setPosition(.50);

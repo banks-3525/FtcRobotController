@@ -8,8 +8,11 @@ public class TeleOpMA extends CommonOpMode {
     @Override
     public void runOpMode() {
         initHardware2020();
+        initPID();
 
         waitForStart();
+
+        setupPIDParameters();
 
         while (opModeIsActive()) {
             drive();
