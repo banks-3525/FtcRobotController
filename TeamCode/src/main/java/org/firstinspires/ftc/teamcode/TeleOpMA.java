@@ -8,14 +8,21 @@ public class TeleOpMA extends CommonOpMode {
     @Override
     public void runOpMode() {
         initHardware2020();
-        //initPID();
+        initPID();
+
+        driveChooser();
 
         waitForStart();
 
-        //setupPIDParameters();
+        setupPIDParameters();
 
         while (opModeIsActive()) {
-            drive();
+            if (drive == FIELD) {
+                fieldCentricDrive();
+            } else {
+                robotCentricDrive();
+            }
+
             ringIntake();
             liftControl();
             ringLauncher();
