@@ -63,7 +63,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     Orientation lastAngles = new Orientation();
     double globalAngle, pidPower = .60, correction, rotation;
     BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-    PIDController pidRotate, pidDrive;
+    PIDController pidRotate, pidDrive, pidRightStrafe, pidLeftStrafe;
 
     public void allianceChooser() {
         if (gamepad1.b) {
@@ -86,6 +86,10 @@ public abstract class CommonOpMode extends LinearOpMode {
     }
 
     public void initHardware2020() {
+        // note about motors
+        // frontLeftMotor is actually front right
+        // frontRightMotor is actually front left
+
         frontLeftMotor = hardwareMap.dcMotor.get("fr");
         backLeftMotor = hardwareMap.dcMotor.get("bl");
         frontRightMotor = hardwareMap.dcMotor.get("fl");
@@ -186,7 +190,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     }
 
     public void getGeneralTelemetry() {
-        telemetry.addData("Angle Reading:", getAngle());
+        //telemetry.addData("Angle Reading:", getAngle());
         //telemetry.addData("Back Left Encoders:", backLeftMotor.getCurrentPosition());
         //telemetry.addData("Front Left Encoders:", frontLeftMotor.getCurrentPosition());
         //telemetry.addData("Back Right Encoders:", backRightMotor.getCurrentPosition());
@@ -243,10 +247,15 @@ public abstract class CommonOpMode extends LinearOpMode {
         backRightMotor.setPower((yAxis + xAxis /*+ strafe*/) * (-speedAdjust / 10));
         frontRightMotor.setPower((-yAxis + xAxis /*- strafe*/) * (-speedAdjust / 10));
 
-        if (strafe == 1 || strafe == -1) {
-            backLeftMotor.setPower(strafe * (-speedAdjust / 10));
+        if (strafe == 1) {
+            backLeftMotor.setPower(strafe * .8 * (-speedAdjust / 10));
             frontLeftMotor.setPower(-strafe * (-speedAdjust / 10));
-            backRightMotor.setPower(strafe * (-speedAdjust / 10));
+            backRightMotor.setPower(strafe * .8 * (-speedAdjust / 10));
+            frontRightMotor.setPower(-strafe * .8 * (-speedAdjust / 10));
+        } else if (strafe == -1) {
+            backLeftMotor.setPower(strafe * .8 * (-speedAdjust / 10));
+            frontLeftMotor.setPower(-strafe * .8 * (-speedAdjust / 10));
+            backRightMotor.setPower(strafe * .8 * (-speedAdjust / 10));
             frontRightMotor.setPower(-strafe * (-speedAdjust / 10));
         }
 
@@ -493,6 +502,8 @@ public abstract class CommonOpMode extends LinearOpMode {
         // Set PID proportional value to produce non-zero correction value when robot veers off
         // straight line. P value controls how sensitive the correction is.
         pidDrive = new PIDController(.025, 0, 0);
+        pidRightStrafe = new PIDController(.75, 0, 0);
+        pidLeftStrafe = new PIDController(.025, 0, 0);
 
         telemetry.addData("Mode", "calibrating...");
         telemetry.update();
@@ -688,12 +699,12 @@ public abstract class CommonOpMode extends LinearOpMode {
         resetDriveWithoutEncoder();
 
         while (abs(frontRightMotor.getCurrentPosition()) <= abs(distance_encoder) && opModeIsActive()) {
-            correction = pidDrive.performPID(getAngle());
+            correction = pidRightStrafe.performPID(getAngle());
             telemetryPID();
-            backLeftMotor.setPower(-pidPower + (correction / 2));
-            frontLeftMotor.setPower(pidPower + (correction / 2));
-            backRightMotor.setPower(-pidPower - (correction / 2));
-            frontRightMotor.setPower(pidPower - (correction / 2));
+            backLeftMotor.setPower(-(pidPower + (correction / 2)));
+            frontLeftMotor.setPower((pidPower + (correction / 2)));
+            backRightMotor.setPower(-(pidPower - (correction / 2)));
+            frontRightMotor.setPower((pidPower - (correction / 2)));
         }
         stopDriveMotors();
     }
@@ -704,12 +715,12 @@ public abstract class CommonOpMode extends LinearOpMode {
         resetDriveWithoutEncoder();
 
         while (abs(frontRightMotor.getCurrentPosition()) <= abs(distance_encoder) && opModeIsActive()) {
-            correction = pidDrive.performPID(getAngle());
+            correction = pidLeftStrafe.performPID(getAngle());
             telemetryPID();
-            backLeftMotor.setPower(pidPower + (correction / 2));
-            frontLeftMotor.setPower(-pidPower - (correction / 2));
-            backRightMotor.setPower(pidPower + (correction / 2));
-            frontRightMotor.setPower(-pidPower - (correction / 2));
+            backLeftMotor.setPower((pidPower - (correction / 2)));
+            frontLeftMotor.setPower(-(pidPower - (correction / 2)));
+            backRightMotor.setPower((pidPower + (correction / 2)));
+            frontRightMotor.setPower(-(pidPower + (correction / 2)));
         }
         stopDriveMotors();
     }
