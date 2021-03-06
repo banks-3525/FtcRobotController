@@ -57,31 +57,41 @@ public class ShootAndPark extends CommonOpMode {
 
         if (opModeIsActive()) {
             while (opModeIsActive()) {
-                ringPushServo.setPosition(.50);
+                ringPushServo.setPosition(.8);
 
-                strafeLeft(20);
-                driveStraightForward(200);
+                pidPower = .6;
+                //driveStraightForward(10);
+                strafeRight(48);
+                resetAngle();
+                driveStraightForward(70);
+                resetAngle();
+                //rotate(17, 1);
+                leftTurnNoPID(.75);
                 ringLauncherMotor.setPower(1);
-                liftAngleServo.setPosition(.65);
-                sleep(5000);
+                liftAngleServo.setPosition(.45);
+                sleep(3000);
 
-                ringPushServo.setPosition(.15);
+                ringPushServo.setPosition(.525);
                 sleep(750);
-                ringPushServo.setPosition(.50);
+                ringPushServo.setPosition(.8);
+
+                //driveStraightBackward(5);
 
                 sleep(2000);
 
-                ringPushServo.setPosition(.15);
+                ringPushServo.setPosition(.525);
                 sleep(750);
-                ringPushServo.setPosition(.50);
+                ringPushServo.setPosition(.8);
+
+                driveStraightBackward(8);
 
                 sleep(2000);
 
-                ringPushServo.setPosition(.15);
+                ringPushServo.setPosition(.525);
                 sleep(750);
-                ringPushServo.setPosition(.50);
+                ringPushServo.setPosition(.8);
 
-                driveStraightForward(45);
+                driveStraightForward(145);
                 break;
             }
         }

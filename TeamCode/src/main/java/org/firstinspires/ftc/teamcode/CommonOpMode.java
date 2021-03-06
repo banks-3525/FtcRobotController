@@ -507,7 +507,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     /**
      * Resets the cumulative angle tracking to zero.
      */
-    private void resetAngle() {
+    public void resetAngle() {
         lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
 
         globalAngle = 0;
@@ -616,10 +616,10 @@ public abstract class CommonOpMode extends LinearOpMode {
     public void rightTurnNoPID(double radian) {
         resetDriveWithoutEncoder();
         while (getAngle() >= -radian && opModeIsActive()) {
-            backLeftMotor.setPower(-1);
-            frontLeftMotor.setPower(-1);
-            backRightMotor.setPower(-1);
-            frontRightMotor.setPower(-1);
+            backLeftMotor.setPower(-.6);
+            frontLeftMotor.setPower(-.6);
+            backRightMotor.setPower(-.6);
+            frontRightMotor.setPower(-.6);
         }
         stopDriveMotors();
     }
@@ -637,6 +637,18 @@ public abstract class CommonOpMode extends LinearOpMode {
         }
         stopDriveMotors();
     }
+
+    public void leftTurnNoPID(double radian) {
+        resetDriveWithoutEncoder();
+        while (getAngle() <= radian && opModeIsActive()) {
+            backLeftMotor.setPower(.6);
+            frontLeftMotor.setPower(.6);
+            backRightMotor.setPower(.6);
+            frontRightMotor.setPower(.6);
+        }
+        stopDriveMotors();
+    }
+
 
     public void driveStraightForward(int distance_cm) {
         double distance_encoder = (int) ((distance_cm * 383.6) / 31.4);
@@ -678,10 +690,10 @@ public abstract class CommonOpMode extends LinearOpMode {
         while (abs(frontRightMotor.getCurrentPosition()) <= abs(distance_encoder) && opModeIsActive()) {
             correction = pidDrive.performPID(getAngle());
             telemetryPID();
-            backLeftMotor.setPower(-(pidPower - (correction / 2)));
-            frontLeftMotor.setPower((pidPower - (correction / 2)));
-            backRightMotor.setPower(-(pidPower + (correction / 2)));
-            frontRightMotor.setPower((pidPower + (correction / 2)));
+            backLeftMotor.setPower(-pidPower + (correction / 2));
+            frontLeftMotor.setPower(pidPower + (correction / 2));
+            backRightMotor.setPower(-pidPower - (correction / 2));
+            frontRightMotor.setPower(pidPower - (correction / 2));
         }
         stopDriveMotors();
     }
@@ -694,10 +706,10 @@ public abstract class CommonOpMode extends LinearOpMode {
         while (abs(frontRightMotor.getCurrentPosition()) <= abs(distance_encoder) && opModeIsActive()) {
             correction = pidDrive.performPID(getAngle());
             telemetryPID();
-            backLeftMotor.setPower((pidPower - (correction / 2)));
-            frontLeftMotor.setPower(-(pidPower - (correction / 2)));
-            backRightMotor.setPower((pidPower + (correction / 2)));
-            frontRightMotor.setPower(-(pidPower + (correction / 2)));
+            backLeftMotor.setPower(pidPower + (correction / 2));
+            frontLeftMotor.setPower(-pidPower - (correction / 2));
+            backRightMotor.setPower(pidPower + (correction / 2));
+            frontRightMotor.setPower(-pidPower - (correction / 2));
         }
         stopDriveMotors();
     }
@@ -738,7 +750,6 @@ public abstract class CommonOpMode extends LinearOpMode {
         stopDriveMotors();
     }
 
-
     public void waitForGamePadA() {
         while (!gamepad1.a) {
             sleep(20);
@@ -757,7 +768,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     public void ringLauncher() {
         if (gamepad1.right_trigger == 1) {
             ringLauncherMotor.setPower(1);
-            liftAngleServo.setPosition(.65);
+            liftAngleServo.setPosition(.45);
         } else if (gamepad1.right_trigger == 0) {
             ringLauncherMotor.setPower(0);
         }
@@ -812,9 +823,9 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     public void ringPush() {
         if (gamepad1.dpad_right) {
-            ringPushServo.setPosition(.15);
+            ringPushServo.setPosition(.525);
         } else {
-            ringPushServo.setPosition(.50);
+            ringPushServo.setPosition(.7);
         }
         /*else if (gamepad1.dpad_left) {
             ringPushServo.setPosition(.15);
