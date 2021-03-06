@@ -778,8 +778,8 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     public void ringLauncher() {
         if (gamepad1.right_trigger == 1) {
-            ringLauncherMotor.setPower(1);
-            liftAngleServo.setPosition(.45);
+            ringLauncherMotor.setPower(.9);
+            liftAngleServo.setPosition(.475);
         } else if (gamepad1.right_trigger == 0) {
             ringLauncherMotor.setPower(0);
         }
