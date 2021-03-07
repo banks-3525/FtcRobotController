@@ -27,6 +27,9 @@ public class TeleOpMA extends CommonOpMode {
             liftControl();
             ringLauncher();
             ringPush();
+            resetAlignment();
+            //wobbleArm();
+            taunt();
             getGeneralTelemetry();
         }
 
