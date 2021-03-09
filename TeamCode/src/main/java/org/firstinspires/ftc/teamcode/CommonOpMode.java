@@ -17,6 +17,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 
 import static java.lang.Math.abs;
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
 
 //GoBilda 5202 YellowJacket ticks 383.6 = 384
 public abstract class CommonOpMode extends LinearOpMode {
@@ -135,9 +137,9 @@ public abstract class CommonOpMode extends LinearOpMode {
     }
 
     private void slowDown() {
-        if (gamepad1.dpad_left) {
+        if (gamepad1.dpad_down) {
             if (!slowDown) {
-                speedAdjust = 3;
+                speedAdjust = 4;
                 slowDown = true;
             }
         } else {
@@ -146,7 +148,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     }
 
     private void speedUp() {
-        if (gamepad1.dpad_right) {
+        if (gamepad1.dpad_up) {
             if (!speedUp) {
                 speedAdjust = 8;
                 speedUp = true;
@@ -157,14 +159,14 @@ public abstract class CommonOpMode extends LinearOpMode {
     }
 
     public void getGeneralTelemetry() {
-        //telemetry.addData("Angle Reading:", getAngle());
-        telemetry.addData("Correction:", correction);
+        telemetry.addData("Angle Reading:", getAngle());
+        //telemetry.addData("Correction:", correction);
         //telemetry.addData("Back Left Encoders:", backLeftMotor.getCurrentPosition());
         //telemetry.addData("Front Left Encoders:", frontLeftMotor.getCurrentPosition());
         //telemetry.addData("Back Right Encoders:", backRightMotor.getCurrentPosition());
         //telemetry.addData("Front Right Encoders:", frontRightMotor.getCurrentPosition());
         //telemetry.addData("IncrementLevel", increment);
-        //telemetry.addData("speed adjust", "%.2f", speedAdjust);
+        telemetry.addData("Speed Level", speedAdjust);
         telemetry.update();
     }
 
@@ -172,29 +174,11 @@ public abstract class CommonOpMode extends LinearOpMode {
         return (gamepad1.left_stick_y != 0) && (gamepad1.left_stick_x != 0) && (gamepad1.right_stick_x != 0);
     }
 
-    public void robotCentricDrive() {
-        double yAxis;
-        double xAxis;
-        double strafe;
+    public boolean rightStickActive() {
+        return (gamepad1.right_stick_x != 0);
+    }
 
-        correction = pidStrafe.performPID(getAngle());
-
-        yAxis = gamepad1.left_stick_y;
-        xAxis = gamepad1.left_stick_x;
-        strafe = gamepad1.right_stick_x;
-        //DON'T CHANGE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        backLeftMotor.setPower((-yAxis + xAxis /*+ strafe*/) * (-speedAdjust / 10));
-        frontLeftMotor.setPower((yAxis + xAxis /*- strafe*/) * (-speedAdjust / 10));
-        backRightMotor.setPower((yAxis + xAxis /*+ strafe*/) * (-speedAdjust / 10));
-        frontRightMotor.setPower((-yAxis + xAxis /*- strafe*/) * (-speedAdjust / 10));
-
-        if (strafe == 1 || strafe == -1) {
-            backLeftMotor.setPower((strafe * (-speedAdjust / 10)) + correction);
-            frontLeftMotor.setPower(-(strafe * (-speedAdjust / 10)) + correction);
-            backRightMotor.setPower((strafe * (-speedAdjust / 10)) + correction);
-            frontRightMotor.setPower(-(strafe * (-speedAdjust / 10)) + correction);
-        }
-
+    public void motorBreak() {
         if (!joysticksActive()) {
             backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -206,6 +190,34 @@ public abstract class CommonOpMode extends LinearOpMode {
             backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         }
+    }
+
+    public void robotCentricDrive() {
+        double yAxis;
+        double xAxis;
+        double strafe;
+
+        yAxis = gamepad1.left_stick_y;
+        xAxis = gamepad1.left_stick_x;
+        strafe = gamepad1.right_stick_x;
+        //DON'T CHANGE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        backLeftMotor.setPower((-yAxis + xAxis /*+ strafe*/) * (-speedAdjust / 10));
+        frontLeftMotor.setPower((yAxis + xAxis /*- strafe*/) * (-speedAdjust / 10));
+        backRightMotor.setPower((yAxis + xAxis /*+ strafe*/) * (-speedAdjust / 10));
+        frontRightMotor.setPower((-yAxis + xAxis /*- strafe*/) * (-speedAdjust / 10));
+
+        if (strafe == 1 || strafe == -1) {
+            resetAngle();
+            while (rightStickActive()) {
+                correction = pidStrafe.performPID(getAngle());
+                backLeftMotor.setPower((strafe * (-speedAdjust / 10)) + correction);
+                frontLeftMotor.setPower(-(strafe * (-speedAdjust / 10)) + correction);
+                backRightMotor.setPower((strafe * (-speedAdjust / 10)) + correction);
+                frontRightMotor.setPower(-(strafe * (-speedAdjust / 10)) + correction);
+            }
+        }
+
+        motorBreak();
     }
 
     public void fieldCentricDrive() {
@@ -225,17 +237,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         backLeftMotor.setPower(v3 + correction);
         backRightMotor.setPower(-v4 + correction);
 
-        if (!joysticksActive()) {
-            backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        } else {
-            backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-            frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-            backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-            frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        }
+        motorBreak();
     }
 
     public void resetAlignment() {
@@ -351,7 +353,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         // Set PID proportional value to produce non-zero correction value when robot veers off
         // straight line. P value controls how sensitive the correction is.
         pidDrive = new PIDController(.025, 0, 0);
-        pidStrafe = new PIDController(.1, 0, 0);
+        pidStrafe = new PIDController(.05, 0, 1);
         pidRightStrafe = new PIDController(.1, 0, 0);
         pidLeftStrafe = new PIDController(.1, 0, 0);
 

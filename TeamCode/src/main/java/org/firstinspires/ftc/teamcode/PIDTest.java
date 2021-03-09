@@ -60,8 +60,8 @@ public class PIDTest extends CommonOpMode {
                 //driveStraightForward(150);
                 //rotate(90, pidPower);
                 //rotate(-90, pidPower);
-                //strafeLeft(100);
-                //strafeRight(100);
+                strafeLeft(100);
+                strafeRight(100);
                 //diagonalUpLeft(50);
                 //telemetry.addData("Encoders:", frontRightMotor.getCurrentPosition());
                 //telemetry.update();

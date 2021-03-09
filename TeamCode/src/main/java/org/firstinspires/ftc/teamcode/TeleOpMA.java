@@ -24,7 +24,8 @@ public class TeleOpMA extends CommonOpMode {
             }
 
             ringIntake();
-            liftControl();
+            setSpeed();
+            //liftControl();
             ringLauncher();
             ringPush();
             resetAlignment();
