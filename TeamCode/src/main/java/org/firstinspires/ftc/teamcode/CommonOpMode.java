@@ -25,9 +25,15 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     private final ElapsedTime runtime = new ElapsedTime();
     double speedAdjust = 8;
+    double ticks;
+    double time;
+    double rpm;
+    double power = .5;
+
     boolean speedUp = false;
     boolean slowDown = false;
     boolean style = false;
+    boolean withinRange = false;
 
     static boolean RED = true;
     static boolean BLUE = false;
@@ -160,6 +166,8 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     public void getGeneralTelemetry() {
         telemetry.addData("Angle Reading:", getAngle());
+        telemetry.addData("RPM:", rpm());
+        telemetry.addData("Ring Launcher Power:", ringLauncherMotor.getPower());
         //telemetry.addData("Correction:", correction);
         //telemetry.addData("Back Left Encoders:", backLeftMotor.getCurrentPosition());
         //telemetry.addData("Front Left Encoders:", frontLeftMotor.getCurrentPosition());
@@ -176,6 +184,25 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     public boolean rightStickActive() {
         return (gamepad1.right_stick_x != 0);
+    }
+
+    public double rpm() {
+        if (abs(time - System.currentTimeMillis()) > 100) {
+            rpm = ((ticks - abs(ringLauncherMotor.getCurrentPosition())) / (time - System.currentTimeMillis())) * 1000;
+
+            ticks = abs(ringLauncherMotor.getCurrentPosition());
+            time = System.currentTimeMillis();
+
+            if (abs(rpm()) > 825) {
+                ringLauncherMotor.setPower(power -= .05);
+            } else if (abs(rpm()) < 775) {
+                ringLauncherMotor.setPower(power += .05);
+            }
+        }
+
+        // 800 is RPM target
+
+        return rpm;
     }
 
     public void motorBreak() {
@@ -353,7 +380,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         // Set PID proportional value to produce non-zero correction value when robot veers off
         // straight line. P value controls how sensitive the correction is.
         pidDrive = new PIDController(.025, 0, 0);
-        pidStrafe = new PIDController(.05, 0, 1);
+        pidStrafe = new PIDController(.05, 0, 0);
         pidRightStrafe = new PIDController(.1, 0, 0);
         pidLeftStrafe = new PIDController(.1, 0, 0);
 
@@ -651,12 +678,33 @@ public abstract class CommonOpMode extends LinearOpMode {
         }
     }
 
+    public void rpmTest() {
+        // 800 is RPM target
+
+        if (abs(time - System.currentTimeMillis()) > 80) {
+            rpm = ((ticks - abs(ringLauncherMotor.getCurrentPosition())) / (time - System.currentTimeMillis())) * 1000;
+
+            ticks = abs(ringLauncherMotor.getCurrentPosition());
+            time = System.currentTimeMillis();
+
+            if (abs(rpm()) > 725) {
+                ringLauncherMotor.setPower(power -= .04);
+                withinRange = false;
+            } else if (abs(rpm()) < 675) {
+                ringLauncherMotor.setPower(power += .04);
+                withinRange = false;
+            } else {
+                withinRange = true;
+            }
+        }
+
+    }
+
     public void ringLauncher() {
         if (gamepad1.right_trigger == 1) {
-            ringLauncherMotor.setPower(1);
-            liftAngleServo.setPosition(.475);
+            liftAngleServo.setPosition(.625);
         } else if (gamepad1.right_trigger == 0) {
-            ringLauncherMotor.setPower(0);
+            //ringLauncherMotor.setPower(0);
         }
     }
 
@@ -708,14 +756,11 @@ public abstract class CommonOpMode extends LinearOpMode {
     }
 
     public void ringPush() {
-        if (gamepad1.dpad_right) {
+        if (gamepad1.dpad_right && withinRange) {
             ringPushServo.setPosition(.525);
         } else {
             ringPushServo.setPosition(.7);
         }
-        /*else if (gamepad1.dpad_left) {
-            ringPushServo.setPosition(.15);
-        }*/
     }
 
     public void wobbleArm() {
