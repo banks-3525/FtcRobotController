@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name = "TeleOpMA", group = "")
@@ -16,9 +17,7 @@ public class TeleOpMA extends CommonOpMode {
         waitForStart();
 
         setupPIDParameters();
-
         while (opModeIsActive()) {
-            long startTime = System.currentTimeMillis();
 
             if (drive == FIELD) {
                 fieldCentricDrive();
@@ -29,8 +28,9 @@ public class TeleOpMA extends CommonOpMode {
             ringIntake();
             setSpeed();
             //liftControl();
-            ringLauncher();
-            rpmTest();
+            ringLauncherPosition();
+            //ringLauncherRevUp();
+            ringLauncherRevUp();
             ringPush();
             resetAlignment();
             //wobbleArm();
