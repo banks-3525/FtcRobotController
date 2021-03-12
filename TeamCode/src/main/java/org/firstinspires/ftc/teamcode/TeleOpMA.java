@@ -20,7 +20,7 @@ public class TeleOpMA extends CommonOpMode {
         while (opModeIsActive()) {
 
             if (drive == FIELD) {
-                fieldCentricDrive();
+                newFieldCentricDrive();
             } else {
                 robotCentricDrive();
             }
@@ -29,8 +29,8 @@ public class TeleOpMA extends CommonOpMode {
             setSpeed();
             //liftControl();
             ringLauncherPosition();
-            //ringLauncherRevUp();
             ringLauncherRevUp();
+            goalSwitcher();
             ringPush();
             resetAlignment();
             //wobbleArm();
