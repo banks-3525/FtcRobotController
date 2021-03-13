@@ -62,6 +62,9 @@ public class RingDetectionTensorFlow extends CommonOpMode {
         initHardware2020();
         initPID();
 
+        grabberPivotServo.setPosition(0);
+        grabberHandServo.setPosition(.05);
+
         if (tfod != null) {
             tfod.activate();
 
@@ -78,7 +81,6 @@ public class RingDetectionTensorFlow extends CommonOpMode {
 
         if (opModeIsActive()) {
             while (opModeIsActive()) {
-                driveStraightForward(10);
 
                 if (tfod != null) {
                     // getUpdatedRecognitions() will return null if no new information is available since
@@ -107,15 +109,49 @@ public class RingDetectionTensorFlow extends CommonOpMode {
                                 // plan of attack:
                                 // scan the rings,
                                 // drive straight to the farthest square,
-                                // deliv`er the Wobble Goal,
+                                // deliver the Wobble Goal,
                                 // drive backwards till the robot is atop the launch line,
                                 // stop the robot.
+                                resetAngle();
+                                ringLauncherRevUp();
+                                strafeLeft(60);
+                                driveStraightForward(190);
+                                sleep(100);
+                                strafeRight(80);
+                                leftTurnNoPID(.5);
+                                liftAngleServo.setPosition(.65);
+                                sleep(3000);
+                                autoRingPushTrigger();
+                                sleep(2000);
+                                autoRingPushTrigger();
+                                sleep(2000);
+                                autoRingPushTrigger();
+                                sleep(2000);
+                                driveStraightForward(185);
+                                sleep(100);
+                                strafeRight(30);
+                                sleep(100);
+                                leftTurnNoPID(40);
+                                sleep(100);
+                                wobbleGrabberMotor.setPower(-.8);
+                                sleep(750);
+                                grabberPivotServo.setPosition(.45);
+                                sleep(500);
+                                grabberHandServo.setPosition(.5);
+                                sleep(500);
+                                grabberPivotServo.setPosition(0);
+                                sleep(1000);
+                                strafeLeft(80);
+                                sleep(1000);
+                                rightTurnNoPID(5);
+                                driveStraightBackward(65);
 
                                 telemetry.addData("It's a quad stack.", "4");
                                 telemetry.update();
-                                sleep(1000);
-                                strafeRight(30);
-                                driveStraightForward(180);
+                                //sleep(1000);
+                                //strafeRight(30);
+                                //driveStraightForward(180);
+                                break;
                             } else if (recognition.getLabel().equals("Single")) {
                                 // in the future, we'll want this code to move
                                 // the robot and Wobble Goal
@@ -137,7 +173,6 @@ public class RingDetectionTensorFlow extends CommonOpMode {
                                 // pidPower = .3;
                                 // driveStraightBackward(100);
                             } else {
-
                                // sleep(1000);
                                // strafeRight(20);
                                 //driveStraightForward(190);
@@ -151,6 +186,35 @@ public class RingDetectionTensorFlow extends CommonOpMode {
                                 // deliver the Wobble Goal,
                                 // drive backwards till the robot is atop the launch line,
                                 // stop the robot.
+                                resetAngle();
+                                ringLauncherRevUp();
+                                strafeLeft(60);
+                                driveStraightForward(190);
+                                sleep(100);
+                                strafeRight(80);
+                                leftTurnNoPID(.5);
+                                liftAngleServo.setPosition(.65);
+                                sleep(3000);
+                                autoRingPushTrigger();
+                                sleep(2000);
+                                autoRingPushTrigger();
+                                sleep(2000);
+                                autoRingPushTrigger();
+                                sleep(2000);
+                                driveStraightForward(40);
+                                sleep(100);
+                                strafeRight(60);
+                                sleep(1000);
+                                wobbleGrabberMotor.setPower(-.8);
+                                sleep(750);
+                                grabberPivotServo.setPosition(.45);
+                                sleep(500);
+                                grabberHandServo.setPosition(.5);
+                                sleep(500);
+                                grabberPivotServo.setPosition(0);
+                                sleep(1000);
+                                strafeLeft(60);
+                                break;
                             }
                         }
 
@@ -158,7 +222,7 @@ public class RingDetectionTensorFlow extends CommonOpMode {
                     }
                 }
 
-
+            //break;
             }
         }
 

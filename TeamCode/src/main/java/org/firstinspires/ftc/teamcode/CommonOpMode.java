@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.LED;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -28,7 +29,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     double ticks;
     double time;
     double rpm;
-    double targetRPM = 850;
+    double targetRPM = 800;
     double power = .5;
     double powerIncrement;
 
@@ -37,6 +38,8 @@ public abstract class CommonOpMode extends LinearOpMode {
     boolean style = false;
     boolean withinRange = false;
     boolean powerShot = false;
+    boolean grabbed = false;
+    boolean pivotedUp = false;
 
     static boolean RED = true;
     static boolean BLUE = false;
@@ -61,7 +64,9 @@ public abstract class CommonOpMode extends LinearOpMode {
     public Servo ringPushServo;
     public Servo liftAngleServo;
     public Servo grabberPivotServo;
-    public Servo wobbleGrabber;
+    public Servo grabberHandServo;
+
+    public LED powerIndicator;
 
     static final int CYCLE_MS = 300;
 
@@ -123,6 +128,10 @@ public abstract class CommonOpMode extends LinearOpMode {
 
         liftAngleServo = hardwareMap.servo.get("LAS");
         ringPushServo = hardwareMap.servo.get("RPS");
+        grabberPivotServo = hardwareMap.servo.get("ArmRotationServo");
+        grabberHandServo = hardwareMap.servo.get("GrabberServo");
+
+        powerIndicator = hardwareMap.led.get("PowerIndicator");
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
@@ -180,6 +189,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         telemetry.addData("Target RPM:", targetRPM);
         telemetry.addData("Ring Launcher Power:", ringLauncherMotor.getPower());
         telemetry.addData("Power Increment:", powerIncrement);
+        telemetry.addData("Wobble Pivot Angle:", grabberPivotServo.getPosition());
         //telemetry.addData("Correction:", correction);
         //telemetry.addData("Back Left Encoders:", backLeftMotor.getCurrentPosition());
         //telemetry.addData("Front Left Encoders:", frontLeftMotor.getCurrentPosition());
@@ -412,7 +422,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         // Set PID proportional value to produce non-zero correction value when robot veers off
         // straight line. P value controls how sensitive the correction is.
         pidDrive = new PIDController(.025, 0, 0);
-        pidStrafe = new PIDController(.5, 0, .5);
+        pidStrafe = new PIDController(1, 0, 1);
         pidRightStrafe = new PIDController(.1, 0, 0);
         pidLeftStrafe = new PIDController(.1, 0, 0);
 
@@ -751,7 +761,7 @@ public abstract class CommonOpMode extends LinearOpMode {
                 withinRange = true;
             }*/
 
-            powerIncrement = ((targetRPM - rpm) / (targetRPM)) * (1/10);
+            powerIncrement = ((targetRPM - rpm) / (targetRPM)) * (1/8);
             ringLauncherMotor.setPower(power += powerIncrement);
 
             if (rpm > (targetRPM + 25)) {
@@ -765,7 +775,7 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     }
 
-    public void goalSwitcher() {
+    /*public void goalSwitcher() {
         if (gamepad1.x && !powerShot) {
             targetRPM = 700;
             powerShot = true;
@@ -773,7 +783,7 @@ public abstract class CommonOpMode extends LinearOpMode {
             targetRPM = 800;
             powerShot = false;
         }
-    }
+    }*/
 
     public void ringLauncherPosition() {
         if (gamepad1.right_trigger == 1) {
@@ -814,19 +824,26 @@ public abstract class CommonOpMode extends LinearOpMode {
     }
 
     public void wobbleGoalGrabberPivot() {
-        if (gamepad1.a) {
-            grabberPivotServo.setPosition(-.5);
-        } else if (gamepad1.b) {
-            grabberPivotServo.setPosition(-.15);
+        if (gamepad1.y) {
+            if (!pivotedUp) {
+                grabberPivotServo.setPosition(.45);
+                pivotedUp = true;
+            }
+        } else {
+            grabberPivotServo.setPosition(0);
+            pivotedUp = false;
         }
-
     }
 
     public void wobbleGoalGrabber() {
         if (gamepad1.x) {
-            wobbleGrabber.setPosition(.5);
-        } else if (gamepad1.y) {
-            wobbleGrabber.setPosition(.15);
+            if (!grabbed) {
+                grabberHandServo.setPosition(.5);
+                grabbed = true;
+            }
+        } else {
+            grabberHandServo.setPosition(.05);
+            grabbed = false;
         }
     }
 
@@ -839,9 +856,9 @@ public abstract class CommonOpMode extends LinearOpMode {
     }
 
     public void wobbleArm() {
-        if (gamepad1.y) {
+        if (gamepad1.a) {
             wobbleGrabberMotor.setPower(-.8);
-        } else if (gamepad1.x) {
+        } else if (gamepad1.b) {
             wobbleGrabberMotor.setPower(.8);
         } else {
             wobbleGrabberMotor.setPower(0);

@@ -65,6 +65,8 @@ public class ShootAndPark extends CommonOpMode {
                 resetAngle();
                 driveStraightForward(150);
                 resetAngle();
+                strafeRight(25);
+                resetAngle();
                 //rotate(17, 1);
                 //leftTurnNoPID(1.5);
                 ringLauncherMotor.setPower(.9);
