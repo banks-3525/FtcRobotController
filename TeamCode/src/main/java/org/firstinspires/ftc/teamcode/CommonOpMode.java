@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.LED;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -56,7 +57,8 @@ public abstract class CommonOpMode extends LinearOpMode {
     public DcMotor backLeftMotor;
     public DcMotor frontRightMotor;
     public DcMotor backRightMotor;
-    public DcMotor ringLauncherMotor;
+    //public DcMotor ringLauncherMotor;
+    public DcMotorEx ringLauncherMotor;
     public DcMotor topIntakeMotor;
     public DcMotor bottomIntakeMotor;
     public DcMotor wobbleGrabberMotor;
@@ -121,7 +123,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         backLeftMotor = hardwareMap.dcMotor.get("bl");
         frontRightMotor = hardwareMap.dcMotor.get("fl");
         backRightMotor = hardwareMap.dcMotor.get("br");
-        ringLauncherMotor = hardwareMap.dcMotor.get("RING");
+        ringLauncherMotor = (DcMotorEx) hardwareMap.dcMotor.get("RING");
         topIntakeMotor = hardwareMap.dcMotor.get("TIM");
         bottomIntakeMotor = hardwareMap.dcMotor.get("BIM");
         wobbleGrabberMotor = hardwareMap.dcMotor.get("WGM");
@@ -178,7 +180,8 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     public void getGeneralTelemetry() {
         //telemetry.addData("Angle Reading:", getAngle());
-        telemetry.addData("RPM:", rpm);
+        telemetry.addData("RPM:", ringLauncherMotor.getVelocity());
+        telemetry.addData("Velocity", ringLauncherMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
 
         if (targetRPM == 800) {
             telemetry.addData("High Goal:", "Yes");
@@ -848,7 +851,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     }
 
     public void ringPush() {
-        if (gamepad1.dpad_right && withinRange) {
+        if (gamepad1.dpad_right) {
             ringPushServo.setPosition(.525);
         } else {
             ringPushServo.setPosition(.7);
