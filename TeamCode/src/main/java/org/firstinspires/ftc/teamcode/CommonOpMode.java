@@ -41,6 +41,8 @@ public abstract class CommonOpMode extends LinearOpMode {
     boolean powerShot = false;
     boolean grabbed = false;
     boolean pivotedUp = false;
+    boolean yPressed = false;
+    boolean xPressed = false;
 
     static boolean RED = true;
     static boolean BLUE = false;
@@ -425,7 +427,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         // Set PID proportional value to produce non-zero correction value when robot veers off
         // straight line. P value controls how sensitive the correction is.
         pidDrive = new PIDController(.025, 0, 0);
-        pidStrafe = new PIDController(1, 0, 1);
+        pidStrafe = new PIDController(.1, 0, 1);
         pidRightStrafe = new PIDController(.1, 0, 0);
         pidLeftStrafe = new PIDController(.1, 0, 0);
 
@@ -804,8 +806,8 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     public void ringIntake() {
         if (gamepad1.left_trigger == 1) {
-            topIntakeMotor.setPower(-.8);
-            bottomIntakeMotor.setPower(.8);
+            topIntakeMotor.setPower(-.9);
+            bottomIntakeMotor.setPower(.9);
             liftAngleServo.setPosition(.145);
         } else if (gamepad1.left_trigger == 0) {
             topIntakeMotor.setPower(0);
@@ -829,12 +831,12 @@ public abstract class CommonOpMode extends LinearOpMode {
     public void wobbleGoalGrabberPivot() {
         if (gamepad1.y) {
             if (!pivotedUp) {
-                grabberPivotServo.setPosition(.45);
+                grabberPivotServo.setPosition(.365);
                 pivotedUp = true;
+            } else if (pivotedUp){
+                grabberPivotServo.setPosition(0);
+                pivotedUp = false;
             }
-        } else {
-            grabberPivotServo.setPosition(0);
-            pivotedUp = false;
         }
     }
 
@@ -843,10 +845,10 @@ public abstract class CommonOpMode extends LinearOpMode {
             if (!grabbed) {
                 grabberHandServo.setPosition(.5);
                 grabbed = true;
+            } else if (grabbed){
+                grabberHandServo.setPosition(.05);
+                grabbed = false;
             }
-        } else {
-            grabberHandServo.setPosition(.05);
-            grabbed = false;
         }
     }
 

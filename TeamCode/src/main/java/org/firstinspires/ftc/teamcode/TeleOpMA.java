@@ -11,6 +11,8 @@ public class TeleOpMA extends CommonOpMode {
     public void runOpMode() {
         initHardware2020();
         initPID();
+        grabberPivotServo.setPosition(0);
+        grabberHandServo.setPosition(.05);
 
         driveChooser();
 
