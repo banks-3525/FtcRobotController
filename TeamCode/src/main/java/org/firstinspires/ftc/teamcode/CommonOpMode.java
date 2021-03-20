@@ -34,6 +34,9 @@ public abstract class CommonOpMode extends LinearOpMode {
     double power = .5;
     double powerIncrement;
 
+    int yCounter = 0;
+    int xCounter = 0;
+
     boolean speedUp = false;
     boolean slowDown = false;
     boolean style = false;
@@ -794,7 +797,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         if (gamepad1.right_trigger == 1) {
             liftAngleServo.setPosition(.65);
         } else if (gamepad1.right_bumper) {
-            liftAngleServo.setPosition(.77);
+            liftAngleServo.setPosition(.85);
         }
     }
 
@@ -828,27 +831,40 @@ public abstract class CommonOpMode extends LinearOpMode {
         }
     }
 
-    public void wobbleGoalGrabberPivot() {
-        if (gamepad1.y) {
-            if (!pivotedUp) {
-                grabberPivotServo.setPosition(.365);
-                pivotedUp = true;
-            } else if (pivotedUp){
-                grabberPivotServo.setPosition(0);
-                pivotedUp = false;
+    /*if (gamepad1.dpad_down) {
+            if (!slowDown) {
+                speedAdjust = 4;
+                slowDown = true;
             }
+        } else {
+            slowDown = false;
+        }*/
+
+    public void wobbleGoalGrabberPivot() {
+        if (gamepad1.y && !pivotedUp) {
+            if (yCounter % 2 == 0) {
+                grabberPivotServo.setPosition(.365);
+            } else {
+                grabberPivotServo.setPosition(0);
+            }
+            pivotedUp = true;
+            yCounter++;
+        } else if (!gamepad1.y && pivotedUp) {
+            pivotedUp = false;
         }
     }
 
     public void wobbleGoalGrabber() {
-        if (gamepad1.x) {
-            if (!grabbed) {
+        if (gamepad1.x && !grabbed) {
+            if (xCounter % 2 == 0) {
                 grabberHandServo.setPosition(.5);
-                grabbed = true;
-            } else if (grabbed){
+            } else {
                 grabberHandServo.setPosition(.05);
-                grabbed = false;
             }
+            grabbed = true;
+            xCounter++;
+        } else if (!gamepad1.x && grabbed) {
+            grabbed = false;
         }
     }
 
