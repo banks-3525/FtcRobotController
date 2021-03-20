@@ -164,8 +164,10 @@ public class RingDetectionTensorFlow extends CommonOpMode {
                                     resetAngle();
                                     ringLauncherMotor.setPower(1);
                                     ringLauncherMotor.setVelocity(810);
+                                    driveStraightForward(10);
+                                    sleep(100);
                                     strafeLeft(60);
-                                    driveStraightForward(190);
+                                    driveStraightForward(155);
                                     sleep(100);
                                     strafeRight(80);
                                     leftTurnNoPID(.5);
@@ -191,10 +193,10 @@ public class RingDetectionTensorFlow extends CommonOpMode {
                                     sleep(500);
                                     grabberPivotServo.setPosition(0);
                                     sleep(1000);
-                                    strafeLeft(250);
-                                    sleep(1000);
-                                   // rightTurnNoPID(0);
-                                   // driveStraightBackward(80);
+                                    //strafeLeft(250);
+                                    //sleep(1000);
+                                    rightTurnNoPID(0);
+                                    driveStraightBackward(80);
 
                                     telemetry.addData("It's a quad stack.", "4");
                                     telemetry.update();

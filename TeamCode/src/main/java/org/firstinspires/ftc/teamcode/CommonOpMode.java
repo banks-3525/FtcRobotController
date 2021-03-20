@@ -802,9 +802,15 @@ public abstract class CommonOpMode extends LinearOpMode {
     }
 
     public void autoRingPushTrigger() {
+        while (abs(ringLauncherMotor.getVelocity() - 810) > 50) {
+            sleep(100);
+        }
         ringPushServo.setPosition(.525);
         sleep(750);
         ringPushServo.setPosition(.8);
+        /*ringPushServo.setPosition(.525);
+        sleep(750);
+        ringPushServo.setPosition(.8);*/
     }
 
     public void ringIntake() {
