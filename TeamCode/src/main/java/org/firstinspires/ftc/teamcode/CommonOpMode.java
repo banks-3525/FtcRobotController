@@ -37,6 +37,8 @@ public abstract class CommonOpMode extends LinearOpMode {
     int yCounter = 0;
     int xCounter = 0;
 
+    long setTime = System.currentTimeMillis();
+
     boolean speedUp = false;
     boolean slowDown = false;
     boolean style = false;
@@ -133,6 +135,12 @@ public abstract class CommonOpMode extends LinearOpMode {
         bottomIntakeMotor = hardwareMap.dcMotor.get("BIM");
         wobbleGrabberMotor = hardwareMap.dcMotor.get("WGM");
 
+        ringLauncherMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        ringLauncherMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        ringLauncherMotor.setVelocityPIDFCoefficients(9.6,3.4,0,11.7);
+        ringLauncherMotor.setPositionPIDFCoefficients(5);
+        //ringLauncherMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         liftAngleServo = hardwareMap.servo.get("LAS");
         ringPushServo = hardwareMap.servo.get("RPS");
         grabberPivotServo = hardwareMap.servo.get("ArmRotationServo");
@@ -186,9 +194,9 @@ public abstract class CommonOpMode extends LinearOpMode {
     public void getGeneralTelemetry() {
         //telemetry.addData("Angle Reading:", getAngle());
         telemetry.addData("RPM:", ringLauncherMotor.getVelocity());
-        telemetry.addData("Velocity", ringLauncherMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
+        telemetry.addData("PIDF Coefficients", ringLauncherMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
 
-        if (targetRPM == 800) {
+        /*if (targetRPM == 800) {
             telemetry.addData("High Goal:", "Yes");
         } else if (targetRPM == 700) {
             telemetry.addData("Power Goal:", "Yes");
@@ -197,7 +205,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         telemetry.addData("Target RPM:", targetRPM);
         telemetry.addData("Ring Launcher Power:", ringLauncherMotor.getPower());
         telemetry.addData("Power Increment:", powerIncrement);
-        telemetry.addData("Wobble Pivot Angle:", grabberPivotServo.getPosition());
+        telemetry.addData("Wobble Pivot Angle:", grabberPivotServo.getPosition());*/
         //telemetry.addData("Correction:", correction);
         //telemetry.addData("Back Left Encoders:", backLeftMotor.getCurrentPosition());
         //telemetry.addData("Front Left Encoders:", frontLeftMotor.getCurrentPosition());
@@ -802,7 +810,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     }
 
     public void autoRingPushTrigger() {
-        while (abs(ringLauncherMotor.getVelocity() - 810) > 50) {
+        while (abs(ringLauncherMotor.getVelocity() - 800) > 50) {
             sleep(100);
         }
         ringPushServo.setPosition(.525);
@@ -875,10 +883,17 @@ public abstract class CommonOpMode extends LinearOpMode {
     }
 
     public void ringPush() {
-        if (gamepad1.dpad_right) {
+        /*if (gamepad1.dpad_right) {
             ringPushServo.setPosition(.525);
         } else {
             ringPushServo.setPosition(.7);
+        }*/
+
+        if (gamepad1.dpad_right) {
+            ringPushServo.setPosition(.525);
+            sleep(150);
+            ringPushServo.setPosition(.7);
+            sleep(600);
         }
     }
 

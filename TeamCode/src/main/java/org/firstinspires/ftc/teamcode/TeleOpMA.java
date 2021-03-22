@@ -29,11 +29,8 @@ public class TeleOpMA extends CommonOpMode {
 
             ringIntake();
             setSpeed();
-            //liftControl();
             ringLauncherPosition();
-            ringLauncherMotor.setPower(1);
-            ringLauncherMotor.setVelocity(810);
-            //ringLauncherRevUp();
+            ringLauncherMotor.setVelocity(800);
             ringPush();
             wobbleGoalGrabber();
             wobbleGoalGrabberPivot();
