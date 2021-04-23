@@ -13,6 +13,7 @@ public class TeleOpMA extends CommonOpMode {
         initPID();
         grabberPivotServo.setPosition(0);
         grabberHandServo.setPosition(.05);
+        liftAngleServo.setPosition(.1);
 
         driveChooser();
 
@@ -29,13 +30,15 @@ public class TeleOpMA extends CommonOpMode {
 
             ringIntake();
             setSpeed();
+            //leftPowerShotAim();
+            //rightPowerShotAim();
+            powerShotAiming();
             ringLauncherPosition();
-            ringLauncherMotor.setVelocity(800);
+            ringLauncherMotor.setVelocity(targetRPM);
             ringPush();
             wobbleGoalGrabber();
             wobbleGoalGrabberPivot();
-            wobbleArm();
-            taunt();
+            //taunt();
             getGeneralTelemetry();
         }
 

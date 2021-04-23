@@ -64,14 +64,14 @@ public class RingDetectionTensorFlow extends CommonOpMode {
         initHardware2020();
         initPID();
 
-        /*backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);*/
+        frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         grabberPivotServo.setPosition(0);
-        grabberHandServo.setPosition(.05);
-        liftAngleServo.setPosition(.65);
+        grabberHandServo.setPosition(.75);
+        liftAngleServo.setPosition(.675);
 
         if (tfod != null) {
             tfod.activate();
@@ -106,36 +106,40 @@ public class RingDetectionTensorFlow extends CommonOpMode {
                             // deliver the Wobble Goal,
                             // drive backwards till the robot is atop the launch line,
                             // stop the robot.
+
                             resetAngle();
-                            ringLauncherMotor.setPower(.5);
-                            ringLauncherMotor.setVelocity(810);
-                            strafeLeft(60);
-                            driveStraightForward(200);
+                            ringLauncherMotor.setPower(1);
+                            ringLauncherMotor.setVelocity(targetRPM);
+                            driveStraightForward(10);
                             sleep(100);
-                            strafeRight(90);
+                            strafeLeft(125);
+                            sleep(100);
+                            driveStraightForward(220);
+                            sleep(100);
+                            strafeRight(125);
                             leftTurnNoPID(.5);
                             sleep(3000);
                             autoRingPushTrigger();
-                            sleep(2000);
                             autoRingPushTrigger();
-                            sleep(3000);
                             autoRingPushTrigger();
-                            sleep(3000);
                             sleep(100);
-                            driveStraightForward(55);
+                            driveStraightForward(70);
                             sleep(100);
-                            strafeRight(30);
+                            strafeRight(45);
                             sleep(100);
-                            wobbleGrabberMotor.setPower(-.8);
+                            /* wobbleGrabberMotor.setPower(1);
+                            sleep(750);*/
+                            dropOff();
+                            grabberHandServo.setPosition(.05);
+                            sleep(500);
+                            wobbleGrabberMotor.setPower(-1);
                             sleep(750);
-                            grabberPivotServo.setPosition(.35);
-                            sleep(500);
-                            grabberHandServo.setPosition(.5);
-                            sleep(500);
-                            grabberPivotServo.setPosition(0);
-                            sleep(1000);
+                            /*wobbleGrabberMotor.setPower(0);
+                            sleep(500);*/
+                            returnToZero();
                             strafeLeft(80);
-                            driveStraightBackward(10);
+                            driveStraightBackward(20);
+                            rightTurnNoPID(0);
                             break;
                         } else {
                             // step through the list of recognitions and display boundary info.
@@ -161,42 +165,44 @@ public class RingDetectionTensorFlow extends CommonOpMode {
                                     // deliver the Wobble Goal,
                                     // drive backwards till the robot is atop the launch line,
                                     // stop the robot.
+
                                     resetAngle();
                                     ringLauncherMotor.setPower(1);
-                                    ringLauncherMotor.setVelocity(810);
+                                    ringLauncherMotor.setVelocity(targetRPM);
                                     driveStraightForward(10);
                                     sleep(100);
-                                    strafeLeft(60);
-                                    driveStraightForward(155);
+                                    strafeLeft(125);
                                     sleep(100);
-                                    strafeRight(80);
+                                    driveStraightForward(225);
+                                    sleep(100);
+                                    strafeRight(125);
                                     leftTurnNoPID(.5);
-                                    liftAngleServo.setPosition(.65);
                                     sleep(3000);
                                     autoRingPushTrigger();
-                                    sleep(2000);
                                     autoRingPushTrigger();
-                                    sleep(2000);
                                     autoRingPushTrigger();
-                                    sleep(2000);
-                                    driveStraightForward(200);
                                     sleep(100);
-                                    strafeRight(30);
+                                    driveStraightForward(210);
+                                    sleep(100);
+                                    strafeRight(60);
                                     sleep(100);
                                     leftTurnNoPID(50);
                                     sleep(100);
-                                    wobbleGrabberMotor.setPower(-.8);
+                                    /* wobbleGrabberMotor.setPower(1);
+                                    sleep(750);*/
+                                    dropOff();
+                                    grabberHandServo.setPosition(.05);
+                                    sleep(500);
+                                    wobbleGrabberMotor.setPower(-1);
                                     sleep(750);
-                                    grabberPivotServo.setPosition(.35);
-                                    sleep(500);
-                                    grabberHandServo.setPosition(.5);
-                                    sleep(500);
-                                    grabberPivotServo.setPosition(0);
+                                    /*wobbleGrabberMotor.setPower(0);
+                                    sleep(500);*/
+                                    returnToZero();
+                                    strafeLeft(160);
                                     sleep(1000);
-                                    //strafeLeft(250);
-                                    //sleep(1000);
                                     rightTurnNoPID(0);
-                                    driveStraightBackward(80);
+                                    driveStraightBackward(110);
+                                    rightTurnNoPID(0);
 
                                     telemetry.addData("It's a quad stack.", "4");
                                     telemetry.update();
@@ -215,33 +221,37 @@ public class RingDetectionTensorFlow extends CommonOpMode {
                                     // stop the robot.
 
                                     resetAngle();
-                                    ringLauncherMotor.setPower(.5);
-                                    ringLauncherMotor.setVelocity(810);
-                                    strafeLeft(60);
-                                    driveStraightForward(190);
+                                    ringLauncherMotor.setPower(1);
+                                    ringLauncherMotor.setVelocity(targetRPM);
+                                    driveStraightForward(10);
                                     sleep(100);
-                                    strafeRight(75);
+                                    strafeLeft(125);
+                                    sleep(100);
+                                    driveStraightForward(225);
+                                    sleep(100);
+                                    strafeRight(125);
                                     leftTurnNoPID(.5);
+                                    sleep(3000);
+                                    autoRingPushTrigger();
+                                    autoRingPushTrigger();
+                                    autoRingPushTrigger();
                                     sleep(100);
-                                    autoRingPushTrigger();
-                                    sleep(2000);
-                                    autoRingPushTrigger();
-                                    sleep(3000);
-                                    autoRingPushTrigger();
-                                    sleep(3000);
-                                    strafeLeft(100);
+                                    strafeLeft(125);
                                     sleep(500);
-                                    driveStraightForward(165);
+                                    driveStraightForward(160);
                                     sleep(1000);
-                                    wobbleGrabberMotor.setPower(-.8);
+                                    /* wobbleGrabberMotor.setPower(1);
+                                    sleep(750);*/
+                                    dropOff();
+                                    grabberHandServo.setPosition(.05);
+                                    sleep(500);
+                                    wobbleGrabberMotor.setPower(-1);
                                     sleep(750);
-                                    grabberPivotServo.setPosition(.35);
-                                    sleep(500);
-                                    grabberHandServo.setPosition(.5);
-                                    sleep(500);
-                                    grabberPivotServo.setPosition(0);
-                                    sleep(500);
-                                    driveStraightBackward(90);
+                                    /*wobbleGrabberMotor.setPower(0);
+                                    sleep(500);*/
+                                    returnToZero();
+                                    driveStraightBackward(120);
+                                    rightTurnNoPID(0);
                                     break;
                                 }
                             }

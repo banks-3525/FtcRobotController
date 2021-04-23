@@ -33,9 +33,12 @@ public abstract class CommonOpMode extends LinearOpMode {
     double targetRPM = 800;
     double power = .5;
     double powerIncrement;
+    double proportionalSpeed;
 
-    int yCounter = 0;
+    int bCounter = 0;
+    int aCounter = 0;
     int xCounter = 0;
+    int upCounter = 0;
 
     long setTime = System.currentTimeMillis();
 
@@ -45,9 +48,12 @@ public abstract class CommonOpMode extends LinearOpMode {
     boolean withinRange = false;
     boolean powerShot = false;
     boolean grabbed = false;
+    boolean dpadUpPressed = false;
     boolean pivotedUp = false;
+    boolean atRest = false;
     boolean yPressed = false;
     boolean xPressed = false;
+    boolean rampUp = false;
 
     static boolean RED = true;
     static boolean BLUE = false;
@@ -137,9 +143,12 @@ public abstract class CommonOpMode extends LinearOpMode {
 
         ringLauncherMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         ringLauncherMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        ringLauncherMotor.setVelocityPIDFCoefficients(9.6,3.4,0,11.7);
+        ringLauncherMotor.setVelocityPIDFCoefficients(50,3,5,26.85);
         ringLauncherMotor.setPositionPIDFCoefficients(5);
         //ringLauncherMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        wobbleGrabberMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        wobbleGrabberMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         liftAngleServo = hardwareMap.servo.get("LAS");
         ringPushServo = hardwareMap.servo.get("RPS");
@@ -165,8 +174,19 @@ public abstract class CommonOpMode extends LinearOpMode {
     }
 
     public void setSpeed() {
-        slowDown();
-        speedUp();
+        //slowDown();
+        //speedUp();
+        if (gamepad1.dpad_up && !dpadUpPressed) {
+            if (upCounter % 2 == 0) {
+                speedAdjust = 4;
+            } else {
+                speedAdjust = 8;
+            }
+            dpadUpPressed = true;
+            upCounter++;
+        } else if (!gamepad1.dpad_up && dpadUpPressed) {
+            dpadUpPressed = false;
+        }
     }
 
     private void slowDown() {
@@ -194,7 +214,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     public void getGeneralTelemetry() {
         //telemetry.addData("Angle Reading:", getAngle());
         telemetry.addData("RPM:", ringLauncherMotor.getVelocity());
-        telemetry.addData("PIDF Coefficients", ringLauncherMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
+        //telemetry.addData("PIDF Coefficients", ringLauncherMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
 
         /*if (targetRPM == 800) {
             telemetry.addData("High Goal:", "Yes");
@@ -207,11 +227,15 @@ public abstract class CommonOpMode extends LinearOpMode {
         telemetry.addData("Power Increment:", powerIncrement);
         telemetry.addData("Wobble Pivot Angle:", grabberPivotServo.getPosition());*/
         //telemetry.addData("Correction:", correction);
-        //telemetry.addData("Back Left Encoders:", backLeftMotor.getCurrentPosition());
-        //telemetry.addData("Front Left Encoders:", frontLeftMotor.getCurrentPosition());
-        //telemetry.addData("Back Right Encoders:", backRightMotor.getCurrentPosition());
-        //telemetry.addData("Front Right Encoders:", frontRightMotor.getCurrentPosition());
+        telemetry.addData("Back Left Encoders:", backLeftMotor.getCurrentPosition());
+        telemetry.addData("Front Left Encoders:", frontLeftMotor.getCurrentPosition());
+        telemetry.addData("Back Right Encoders:", backRightMotor.getCurrentPosition());
+        telemetry.addData("Front Right Encoders:", frontRightMotor.getCurrentPosition());
+        telemetry.addData("Wobble Goal Enocders:", wobbleGrabberMotor.getCurrentPosition());
         //telemetry.addData("IncrementLevel", increment);
+        telemetry.addData("Y-Axis Left Stick:", gamepad1.left_stick_y);
+        telemetry.addData("X-Axis Left Stick:", gamepad1.left_stick_x);
+        telemetry.addData("X-Axis Right Stick:", gamepad1.right_stick_x);
         telemetry.addData("Speed Level", speedAdjust);
         telemetry.update();
     }
@@ -328,12 +352,10 @@ public abstract class CommonOpMode extends LinearOpMode {
     public void resetAlignment() {
         correction = pidDrive.performPID(getAngle());
 
-        if (gamepad1.b) {
-            frontRightMotor.setPower(correction);
-            frontLeftMotor.setPower(correction);
-            backLeftMotor.setPower(correction);
-            backRightMotor.setPower(correction);
-        }
+        frontRightMotor.setPower(correction * 2);
+        frontLeftMotor.setPower(correction * 2);
+        backLeftMotor.setPower(correction * 2);
+        backRightMotor.setPower(correction * 2);
     }
 
     public void lessThanEqualDistance(double target) {
@@ -437,8 +459,8 @@ public abstract class CommonOpMode extends LinearOpMode {
 
         // Set PID proportional value to produce non-zero correction value when robot veers off
         // straight line. P value controls how sensitive the correction is.
-        pidDrive = new PIDController(.025, 0, 0);
-        pidStrafe = new PIDController(.1, 0, 1);
+        pidDrive = new PIDController(.075, 0, 0);
+        pidStrafe = new PIDController(.075, 0, 1);
         pidRightStrafe = new PIDController(.1, 0, 0);
         pidLeftStrafe = new PIDController(.1, 0, 0);
 
@@ -572,6 +594,17 @@ public abstract class CommonOpMode extends LinearOpMode {
         stopDriveMotors();
     }
 
+    public void center() {
+        resetDriveWithoutEncoder();
+        while (!(getAngle() == 0) && opModeIsActive()) {
+            backLeftMotor.setPower(correction * 1.5);
+            frontLeftMotor.setPower(correction * 1.5);
+            backRightMotor.setPower(correction * 1.5);
+            frontRightMotor.setPower(correction * 1.5);
+        }
+        stopDriveMotors();
+    }
+
 
     public void leftTurn(double power, double radian) {
         resetDrive();
@@ -589,10 +622,10 @@ public abstract class CommonOpMode extends LinearOpMode {
     public void leftTurnNoPID(double radian) {
         resetDriveWithoutEncoder();
         while (getAngle() <= radian && opModeIsActive()) {
-            backLeftMotor.setPower(.6);
-            frontLeftMotor.setPower(.6);
-            backRightMotor.setPower(.6);
-            frontRightMotor.setPower(.6);
+            backLeftMotor.setPower(.4);
+            frontLeftMotor.setPower(.4);
+            backRightMotor.setPower(.4);
+            frontRightMotor.setPower(.4);
         }
         stopDriveMotors();
     }
@@ -637,6 +670,7 @@ public abstract class CommonOpMode extends LinearOpMode {
 
         while (abs(frontRightMotor.getCurrentPosition()) <= abs(distance_encoder) && opModeIsActive()) {
             correction = pidStrafe.performPID(getAngle());
+            //correction = 0;
             telemetryPID();
             backLeftMotor.setPower(-pidPower + correction);
             frontLeftMotor.setPower(pidPower + correction);
@@ -653,6 +687,7 @@ public abstract class CommonOpMode extends LinearOpMode {
 
         while (abs(frontRightMotor.getCurrentPosition()) <= abs(distance_encoder) && opModeIsActive()) {
             correction = pidStrafe.performPID(getAngle());
+            //correction = 0;
             telemetryPID();
             backLeftMotor.setPower(pidPower + correction);
             frontLeftMotor.setPower(-pidPower + correction);
@@ -712,7 +747,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         telemetry.addData("bl motor encoder", abs(backLeftMotor.getCurrentPosition()));
         telemetry.addData("fr motor encoder", abs(frontRightMotor.getCurrentPosition()));
         telemetry.addData("br motor encoder", abs(backRightMotor.getCurrentPosition()));
-        telemetry.addData("frp", frontRightMotor.getPower());
+        telemetry.addData("Proportional Speed", proportionalSpeed);
         telemetry.update();
     }
 
@@ -802,20 +837,25 @@ public abstract class CommonOpMode extends LinearOpMode {
     }*/
 
     public void ringLauncherPosition() {
-        if (gamepad1.right_trigger == 1) {
-            liftAngleServo.setPosition(.65);
-        } else if (gamepad1.right_bumper) {
+        if (gamepad1.right_trigger == 1 ){ //highGoal
+            //liftAngleServo.setPosition(.65);
+            liftAngleServo.setPosition(.745);
+            targetRPM = 800;
+        } else if (gamepad1.right_bumper) { //powerShot
+            //liftAngleServo.setPosition(.85);
             liftAngleServo.setPosition(.85);
+            targetRPM = 750;
         }
     }
 
     public void autoRingPushTrigger() {
-        while (abs(ringLauncherMotor.getVelocity() - 800) > 50) {
-            sleep(100);
-        }
-        ringPushServo.setPosition(.525);
-        sleep(750);
-        ringPushServo.setPosition(.8);
+        /*while (abs(ringLauncherMotor.getVelocity() - 800) > 50) {
+            sleep(90);
+        }*/
+        ringPushServo.setPosition(.2);
+        sleep(150);
+        ringPushServo.setPosition(.35);
+        sleep(450);
         /*ringPushServo.setPosition(.525);
         sleep(750);
         ringPushServo.setPosition(.8);*/
@@ -825,7 +865,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         if (gamepad1.left_trigger == 1) {
             topIntakeMotor.setPower(-.9);
             bottomIntakeMotor.setPower(.9);
-            liftAngleServo.setPosition(.145);
+            liftAngleServo.setPosition(0.1);
         } else if (gamepad1.left_trigger == 0) {
             topIntakeMotor.setPower(0);
             bottomIntakeMotor.setPower(0);
@@ -855,7 +895,8 @@ public abstract class CommonOpMode extends LinearOpMode {
         }*/
 
     public void wobbleGoalGrabberPivot() {
-        if (gamepad1.y && !pivotedUp) {
+        // roughly 740 encoder values for a change of 90 degrees
+        /*if (gamepad1.y && !pivotedUp) {
             if (yCounter % 2 == 0) {
                 grabberPivotServo.setPosition(.365);
             } else {
@@ -865,13 +906,86 @@ public abstract class CommonOpMode extends LinearOpMode {
             yCounter++;
         } else if (!gamepad1.y && pivotedUp) {
             pivotedUp = false;
+        }*/
+
+        /*if (gamepad2.b) {
+            wobbleGrabberMotor.setPower(1);
+        } else if (gamepad2.a) {
+            wobbleGrabberMotor.setPower(-1);
+        } else {
+            wobbleGrabberMotor.setPower(0);
+        }*/
+
+        if (gamepad1.a) {
+            wobbleGrabberMotor.setPower(1);
+        } else if (gamepad1.b) {
+            wobbleGrabberMotor.setPower(-1);
+        } else {
+            wobbleGrabberMotor.setPower(0);
         }
+
+        /*if (gamepad2.x) {
+            wobbleGrabberMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        }*/
+
+        /*if (gamepad1.y) {
+            wobbleGrabberMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            wobbleGrabberMotor.setPower(-1);
+            wobbleGrabberMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            wobbleGrabberMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        }*/
+
+        /*if (gamepad1.a) {
+            wobbleGrabberMotor.setTargetPosition(740);
+            wobbleGrabberMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            wobbleGrabberMotor.setPower(1);
+
+            while (wobbleGrabberMotor.isBusy()) {
+
+            }
+        }*/
+
+        /*if (gamepad1.b && !pivotedUp) {
+            if (bCounter % 2 == 0) {
+                wobbleGrabberMotor.setTargetPosition(1480);
+                wobbleGrabberMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                wobbleGrabberMotor.setPower(1);
+
+                while (wobbleGrabberMotor.isBusy()) {
+
+                }
+            } else {
+                wobbleGrabberMotor.setTargetPosition(950);
+                wobbleGrabberMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                wobbleGrabberMotor.setPower(1);
+
+                while (wobbleGrabberMotor.isBusy()) {
+
+                }
+            }
+            pivotedUp = true;
+            bCounter++;
+        } else if (!gamepad1.b && pivotedUp) {
+            pivotedUp = false;
+        }*/
+
+
+        /*if (gamepad1.a && !atRest) {
+            if (aCounter % 2 == 0) {
+                wobbleGrabberMotor.setTargetPosition(0);
+                wobbleGrabberMotor.setPower(.5);
+            }
+            atRest = true;
+            aCounter++;
+        } else if (!gamepad1.a && atRest) {
+            atRest = false;
+        }*/
     }
 
     public void wobbleGoalGrabber() {
         if (gamepad1.x && !grabbed) {
             if (xCounter % 2 == 0) {
-                grabberHandServo.setPosition(.5);
+                grabberHandServo.setPosition(.75);
             } else {
                 grabberHandServo.setPosition(.05);
             }
@@ -882,28 +996,83 @@ public abstract class CommonOpMode extends LinearOpMode {
         }
     }
 
-    public void ringPush() {
-        /*if (gamepad1.dpad_right) {
-            ringPushServo.setPosition(.525);
-        } else {
-            ringPushServo.setPosition(.7);
-        }*/
+    public void dropOff() {
+        wobbleGrabberMotor.setTargetPosition(950);
+        wobbleGrabberMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        wobbleGrabberMotor.setPower(1);
 
-        if (gamepad1.dpad_right) {
-            ringPushServo.setPosition(.525);
-            sleep(150);
-            ringPushServo.setPosition(.7);
-            sleep(600);
+        while (wobbleGrabberMotor.isBusy()) {
+
         }
     }
 
-    public void wobbleArm() {
+    public void returnToZero() {
+        wobbleGrabberMotor.setTargetPosition(0);
+        wobbleGrabberMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        wobbleGrabberMotor.setPower(1);
+
+        while (wobbleGrabberMotor.isBusy()) {
+
+        }
+    }
+
+    public void ringPush() {
+        /*if (gamepad1.dpad_right) {
+            ringPushServo.setPosition(.2);
+        } else {
+            ringPushServo.setPosition(.35);
+        }*/
+
+        if (gamepad1.dpad_right) {
+            ringPushServo.setPosition(.2);
+            sleep(150);
+            ringPushServo.setPosition(.35);
+            sleep(450);
+        } else {
+            ringPushServo.setPosition(.35);
+        }
+    }
+
+    /*public void wobbleArm() {
         if (gamepad1.a) {
             wobbleGrabberMotor.setPower(-.8);
         } else if (gamepad1.b) {
             wobbleGrabberMotor.setPower(.8);
         } else {
             wobbleGrabberMotor.setPower(0);
+        }
+    }*/
+
+    public void leftPowerShotAim() {
+        if (gamepad1.dpad_left) {
+            leftTurnNoPID(6);
+        }
+    }
+
+    public void rightPowerShotAim() {
+        if (gamepad1.dpad_down) {
+            rightTurnNoPID(0.75);
+        }
+    }
+
+    public void powerShotAiming() {
+        if (gamepad1.dpad_left) {
+            strafeRight(80);
+            leftTurnNoPID(.5);
+            sleep(100);
+            autoRingPushTrigger();
+            driveStraightForward(5);
+            leftTurnNoPID(.5);
+            sleep(100);
+            strafeRight(50);
+            sleep(100);
+            autoRingPushTrigger();
+            driveStraightForward(5);
+            leftTurnNoPID(.5);
+            sleep(100);
+            strafeRight(50);
+            sleep(100);
+            autoRingPushTrigger();
         }
     }
 
