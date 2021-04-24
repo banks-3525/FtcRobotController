@@ -7,12 +7,14 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.LED;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -80,6 +82,8 @@ public abstract class CommonOpMode extends LinearOpMode {
     public Servo liftAngleServo;
     public Servo grabberPivotServo;
     public Servo grabberHandServo;
+
+    public DistanceSensor distanceSensor;
 
     public LED powerIndicator;
 
@@ -154,6 +158,8 @@ public abstract class CommonOpMode extends LinearOpMode {
         ringPushServo = hardwareMap.servo.get("RPS");
         grabberPivotServo = hardwareMap.servo.get("ArmRotationServo");
         grabberHandServo = hardwareMap.servo.get("GrabberServo");
+
+        distanceSensor = hardwareMap.get(DistanceSensor.class, "distanceSensor");
 
         powerIndicator = hardwareMap.led.get("PowerIndicator");
 
@@ -232,6 +238,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         telemetry.addData("Back Right Encoders:", backRightMotor.getCurrentPosition());
         telemetry.addData("Front Right Encoders:", frontRightMotor.getCurrentPosition());
         telemetry.addData("Wobble Goal Enocders:", wobbleGrabberMotor.getCurrentPosition());
+        telemetry.addData("Distance in Inches:", distanceSensor.getDistance(DistanceUnit.INCH));
         //telemetry.addData("IncrementLevel", increment);
         telemetry.addData("Y-Axis Left Stick:", gamepad1.left_stick_y);
         telemetry.addData("X-Axis Left Stick:", gamepad1.left_stick_x);
@@ -839,7 +846,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     public void ringLauncherPosition() {
         if (gamepad1.right_trigger == 1 ){ //highGoal
             //liftAngleServo.setPosition(.65);
-            liftAngleServo.setPosition(.745);
+            liftAngleServo.setPosition(.76);
             targetRPM = 800;
         } else if (gamepad1.right_bumper) { //powerShot
             //liftAngleServo.setPosition(.85);
@@ -997,7 +1004,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     }
 
     public void dropOff() {
-        wobbleGrabberMotor.setTargetPosition(950);
+        wobbleGrabberMotor.setTargetPosition(1200);
         wobbleGrabberMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         wobbleGrabberMotor.setPower(1);
 

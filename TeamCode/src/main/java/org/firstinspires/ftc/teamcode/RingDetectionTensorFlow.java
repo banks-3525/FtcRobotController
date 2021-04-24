@@ -71,7 +71,8 @@ public class RingDetectionTensorFlow extends CommonOpMode {
 
         grabberPivotServo.setPosition(0);
         grabberHandServo.setPosition(.75);
-        liftAngleServo.setPosition(.675);
+        liftAngleServo.setPosition(.76);
+        // original is .675
 
         if (tfod != null) {
             tfod.activate();
@@ -127,15 +128,12 @@ public class RingDetectionTensorFlow extends CommonOpMode {
                             sleep(100);
                             strafeRight(45);
                             sleep(100);
-                            /* wobbleGrabberMotor.setPower(1);
-                            sleep(750);*/
                             dropOff();
+                            sleep(1000);
                             grabberHandServo.setPosition(.05);
                             sleep(500);
                             wobbleGrabberMotor.setPower(-1);
                             sleep(750);
-                            /*wobbleGrabberMotor.setPower(0);
-                            sleep(500);*/
                             returnToZero();
                             strafeLeft(80);
                             driveStraightBackward(20);
@@ -188,15 +186,12 @@ public class RingDetectionTensorFlow extends CommonOpMode {
                                     sleep(100);
                                     leftTurnNoPID(50);
                                     sleep(100);
-                                    /* wobbleGrabberMotor.setPower(1);
-                                    sleep(750);*/
                                     dropOff();
+                                    sleep(1000);
                                     grabberHandServo.setPosition(.05);
                                     sleep(500);
                                     wobbleGrabberMotor.setPower(-1);
                                     sleep(750);
-                                    /*wobbleGrabberMotor.setPower(0);
-                                    sleep(500);*/
                                     returnToZero();
                                     strafeLeft(160);
                                     sleep(1000);
@@ -240,15 +235,12 @@ public class RingDetectionTensorFlow extends CommonOpMode {
                                     sleep(500);
                                     driveStraightForward(160);
                                     sleep(1000);
-                                    /* wobbleGrabberMotor.setPower(1);
-                                    sleep(750);*/
                                     dropOff();
+                                    sleep(1000);
                                     grabberHandServo.setPosition(.05);
                                     sleep(500);
                                     wobbleGrabberMotor.setPower(-1);
                                     sleep(750);
-                                    /*wobbleGrabberMotor.setPower(0);
-                                    sleep(500);*/
                                     returnToZero();
                                     driveStraightBackward(120);
                                     rightTurnNoPID(0);
