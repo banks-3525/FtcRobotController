@@ -676,8 +676,8 @@ public abstract class CommonOpMode extends LinearOpMode {
         resetDriveWithoutEncoder();
 
         while (abs(frontRightMotor.getCurrentPosition()) <= abs(distance_encoder) && opModeIsActive()) {
-            correction = pidStrafe.performPID(getAngle());
-            //correction = 0;
+            //correction = pidStrafe.performPID(getAngle());
+            correction = 0;
             telemetryPID();
             backLeftMotor.setPower(-pidPower + correction);
             frontLeftMotor.setPower(pidPower + correction);
@@ -693,8 +693,8 @@ public abstract class CommonOpMode extends LinearOpMode {
         resetDriveWithoutEncoder();
 
         while (abs(frontRightMotor.getCurrentPosition()) <= abs(distance_encoder) && opModeIsActive()) {
-            correction = pidStrafe.performPID(getAngle());
-            //correction = 0;
+            //correction = pidStrafe.performPID(getAngle());
+            correction = 0;
             telemetryPID();
             backLeftMotor.setPower(pidPower + correction);
             frontLeftMotor.setPower(-pidPower + correction);

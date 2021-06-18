@@ -71,7 +71,7 @@ public class RingDetectionTensorFlow extends CommonOpMode {
 
         grabberPivotServo.setPosition(0);
         grabberHandServo.setPosition(.75);
-        liftAngleServo.setPosition(.76);
+        liftAngleServo.setPosition(.675);
         // original is .675
 
         if (tfod != null) {
@@ -117,8 +117,8 @@ public class RingDetectionTensorFlow extends CommonOpMode {
                             sleep(100);
                             driveStraightForward(220);
                             sleep(100);
-                            strafeRight(125);
-                            leftTurnNoPID(.5);
+                            strafeRight(150);
+                            //leftTurnNoPID(.5);
                             sleep(3000);
                             autoRingPushTrigger();
                             autoRingPushTrigger();
@@ -173,8 +173,8 @@ public class RingDetectionTensorFlow extends CommonOpMode {
                                     sleep(100);
                                     driveStraightForward(225);
                                     sleep(100);
-                                    strafeRight(125);
-                                    leftTurnNoPID(.5);
+                                    strafeRight(150);
+                                    //leftTurnNoPID(.5);
                                     sleep(3000);
                                     autoRingPushTrigger();
                                     autoRingPushTrigger();
@@ -224,8 +224,8 @@ public class RingDetectionTensorFlow extends CommonOpMode {
                                     sleep(100);
                                     driveStraightForward(225);
                                     sleep(100);
-                                    strafeRight(125);
-                                    leftTurnNoPID(.5);
+                                    strafeRight(150);
+                                    //leftTurnNoPID(.5);
                                     sleep(3000);
                                     autoRingPushTrigger();
                                     autoRingPushTrigger();
